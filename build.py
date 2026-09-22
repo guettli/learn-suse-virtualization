@@ -46,15 +46,22 @@ MODEL = genanki.Model(
             "afmt": '{{FrontSide}}<hr id="answer">{{Back}}',
         }
     ],
+    # Theme-agnostic: don't hard-code background/text colors (Anki/AnkiDroid
+    # control those, including night mode). Use translucent grays + `inherit`
+    # so code, rules, and tables stay readable on both light and dark cards.
     css=(
         ".card{font-family:-apple-system,Segoe UI,Roboto,sans-serif;"
-        "font-size:18px;line-height:1.5;color:#1a1a1a;background:#fff;"
-        "text-align:left;padding:16px;max-width:52em;margin:0 auto}"
-        "code{background:#f0f0f0;padding:1px 4px;border-radius:4px;"
-        "font-size:0.9em}"
-        "pre code{display:block;padding:10px;overflow-x:auto}"
-        "hr#answer{margin:14px 0;border:0;border-top:1px solid #ccc}"
+        "font-size:18px;line-height:1.5;text-align:left;padding:16px;"
+        "max-width:52em;margin:0 auto}"
+        "code{background:rgba(128,128,128,0.22);color:inherit;padding:1px 4px;"
+        "border-radius:4px;font-size:0.9em;"
+        "font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}"
+        "pre{background:rgba(128,128,128,0.16);border-radius:6px;overflow-x:auto}"
+        "pre code{display:block;padding:10px;background:none}"
+        "hr#answer{margin:14px 0;border:0;border-top:1px solid rgba(128,128,128,0.5)}"
         "ul,ol{margin:6px 0 6px 22px}"
+        "table{border-collapse:collapse}"
+        "th,td{border:1px solid rgba(128,128,128,0.5);padding:4px 8px}"
     ),
 )
 
