@@ -6,19 +6,70 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: write  # needed to create tags + releases
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
       - run: pip install -r requirements.txt
-      - run: python build.py
+
+      - name: Build deck
+        run: python build.py
+
+      # Always publish the built files as workflow artifacts (handy on PRs).
       - uses: actions/upload-artifact@v4
         with:
           name: anki-deck
           path: |
             dist/learn-suse-virtualization.apkg
             dist/learn-suse-virtualization.tsv
+
+      # On a push to main, cut a GitHub Release IF the VERSION file names a
+      # version that hasn't been released yet. Bump VERSION in your PR to
+      # trigger a release; merges that don't touch VERSION only build/validate.
+      - name: Release on version bump
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          VERSION="$(tr -d '[:space:]' < VERSION)"
+          TAG="v${VERSION}"
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists — bump VERSION to cut a new one. Skipping."
+            exit 0
+          fi
+
+          CARDS="$(grep -rhc '^Q:' cards/*.md | awk '{s+=$1} END{print s}')"
+          DL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/learn-suse-virtualization.apkg"
+
+          cat > notes.md <<EOF
+          **SUSE Virtualization Anki deck — ${TAG}** · ${CARDS} cards
+
+          ### Install
+          Download **\`learn-suse-virtualization.apkg\`** below and in Anki choose
+          **File → Import**. Or always grab the newest deck from:
+          <https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/learn-suse-virtualization.apkg>
+
+          A plain \`learn-suse-virtualization.tsv\` is also attached (import with
+          Tab separator, "Allow HTML", field 3 = Tags).
+
+          Cards use stable GUIDs, so re-importing an updated deck **updates** existing
+          cards instead of duplicating them.
+          EOF
+
+          gh release create "$TAG" \
+            dist/learn-suse-virtualization.apkg \
+            dist/learn-suse-virtualization.tsv \
+            --title "SUSE Virtualization deck ${TAG} (${CARDS} cards)" \
+            --notes-file notes.md
+          echo "Published release $TAG."

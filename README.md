@@ -1,5 +1,8 @@
 # learn-suse-virtualization
 
+[![build-deck](https://github.com/guettli/learn-suse-virtualization/actions/workflows/build.yml/badge.svg)](https://github.com/guettli/learn-suse-virtualization/actions/workflows/build.yml)
+[![latest release](https://img.shields.io/github/v/release/guettli/learn-suse-virtualization)](https://github.com/guettli/learn-suse-virtualization/releases/latest)
+
 Open-source **Anki flashcards for learning SUSE Virtualization** — the SUSE
 hyperconverged-infrastructure (HCI) product formerly and still known upstream as
 **Harvester**. It runs virtual machines on Kubernetes using KubeVirt, with
@@ -18,17 +21,19 @@ tooling, and troubleshooting.
 
 ## Get the deck
 
-**Option A — one-click `.apkg` (recommended).** Download
-`dist/learn-suse-virtualization.apkg` (built by CI and attached to
-[Releases](../../releases)), then in Anki: **File → Import** and pick the file. It creates
-a "SUSE Virtualization" deck with all cards tagged `suse-virtualization` plus a per-topic
-tag.
+**One-click `.apkg` (recommended).** Download the latest deck — no login required:
 
-**Option B — plain TSV.** Import `dist/learn-suse-virtualization.tsv` via **File → Import**
-with:
-- Field separator: **Tab**
-- **Allow HTML in fields:** on
-- Field mapping: 1 → Front, 2 → Back, 3 → **Tags**
+**➡️ [learn-suse-virtualization.apkg](https://github.com/guettli/learn-suse-virtualization/releases/latest/download/learn-suse-virtualization.apkg)**
+
+Then in Anki: **File → Import** and pick the file. It creates a "SUSE Virtualization" deck
+with every card tagged `suse-virtualization` plus a per-topic tag. Each
+[release](https://github.com/guettli/learn-suse-virtualization/releases) also attaches the
+same file.
+
+**Plain TSV alternative.** Download
+[`learn-suse-virtualization.tsv`](https://github.com/guettli/learn-suse-virtualization/releases/latest/download/learn-suse-virtualization.tsv)
+and import via **File → Import** with: separator **Tab**, **Allow HTML in fields** on, and
+field mapping 1 → Front, 2 → Back, 3 → **Tags**.
 
 Re-importing an updated deck **updates** existing cards instead of duplicating them, because
 each card has a stable GUID derived from its question text.
@@ -59,6 +64,21 @@ A: ...
 
 Add or fix a card, run `python build.py` to verify it compiles, and open a PR. Please keep
 questions atomic (one idea per card) and answers concise but complete.
+
+## Releasing
+
+Releases are cut automatically by CI when the version changes. The version lives in the
+[`VERSION`](VERSION) file (semver, e.g. `0.2.0`).
+
+To publish a new deck:
+1. Bump `VERSION` in your PR (e.g. `0.1.0` → `0.2.0`).
+2. Merge to `main`.
+3. CI builds the deck and, seeing a version with no matching tag, creates tag `vX.Y.Z` and a
+   **GitHub Release** with `learn-suse-virtualization.apkg` and `.tsv` attached.
+
+Merges that don't touch `VERSION` just build and validate — no duplicate release. The built
+files are **not** committed to the repo; they live only on Releases (and as CI artifacts on
+PRs).
 
 ## License
 
