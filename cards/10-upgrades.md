@@ -29,3 +29,15 @@ A: In air-gapped environments there is no reachable release channel, so you **do
 
 Q: How do you monitor upgrade progress and troubleshoot it?
 A: The dashboard shows a live **upgrade progress** view (open the progress/status indicator) tracking per-node and per-component phases. The **Upgrade CRD** status and pod/job logs provide deeper detail, and individual node upgrades can be paused for manual maintenance between phases.
+
+Q: When Harvester is managed by an external Rancher, in what order should you upgrade the two?
+A: Generally **upgrade Rancher first, then Harvester**, because the newer Harvester version expects a compatible Rancher and a matching **Harvester UI Extension**. Upgrading Harvester underneath an older Rancher can break the imported-cluster integration and its management/UI. Confirm the target pair in the support matrix before starting either side.
+
+Q: How do bundled add-ons like monitoring and logging behave during an upgrade, and how can they block one?
+A: Add-ons such as **rancher-monitoring** and **rancher-logging** ship as **ManagedCharts** and are **upgraded in lockstep** with the cluster, not separately. The pre-upgrade validation **requires every ManagedChart to be in a Ready state**; if one is not, the upgrade is **denied by the `validator.harvesterhci.io` admission webhook** until it reconciles — a common cause of an upgrade that will not start.
+
+Q: What built-in mechanism captures detailed logs throughout a Harvester upgrade for later analysis?
+A: You can enable an **UpgradeLog** when the upgrade begins: Harvester stands up a logging pipeline (built on **rancher-logging / Fluentd**) that **archives logs from the upgrade-related pods** to a volume for the whole upgrade. Because the cluster is unstable mid-upgrade, this persistent archive is far more reliable than ad-hoc `kubectl logs` for diagnosing a stuck or failed run.
+
+Q: What should you do before retrying an upgrade that has failed?
+A: **Generate a support bundle first.** It snapshots the current logs and resource manifests needed to root-cause the failure, and restarting the upgrade can **overwrite or clear that state**, destroying the evidence. Only after the bundle is captured should you attempt the retry (or open a support case with the bundle attached).

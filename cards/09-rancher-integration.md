@@ -32,3 +32,15 @@ A: When you provision an RKE2/K3s cluster with the **node driver**, both are **d
 
 Q: Why run guest RKE2/K3s clusters on top of Harvester instead of directly on hardware?
 A: Harvester provides the **VM lifecycle, networking (VLAN/LoadBalancer), and storage (CSI)** as an on-prem cloud, so Rancher can spin up, scale, heal, and tear down full Kubernetes clusters on demand from **cloud images** — turning bare-metal HCI into a self-service, cloud-like platform for many isolated clusters.
+
+Q: How do you scale the number of nodes in a Harvester-backed guest cluster, and can it autoscale?
+A: Guest nodes are grouped into **machine pools (node pools)**; you scale a pool by changing its **quantity**, and Rancher creates or deletes the backing Harvester VMs accordingly. For autoscaling, deploy the **Kubernetes Cluster Autoscaler** and annotate the pool with min/max size (`cluster.provisioning.cattle.io/autoscaler-min-size` / `-max-size`) so pending, unschedulable pods trigger scale-up and idle nodes are scaled down.
+
+Q: Why must you check a support matrix before pairing an external Rancher with a Harvester cluster?
+A: Rancher and Harvester release **independently**, so only specific version pairs are supported for import and management. From **Rancher v2.10+** you also need the matching **Harvester UI Extension** to reach the Harvester UI inside Rancher. When upgrading an integrated setup the guidance is generally to **upgrade Rancher first, then Harvester**. Always confirm the exact pair against the official Harvester/Rancher support matrix.
+
+Q: Who controls the Kubernetes version of a Harvester-hosted guest cluster and its upgrades?
+A: **Rancher** does, not Harvester. You pick the **RKE2/K3s Kubernetes version** from Rancher's release channel when provisioning, and you **upgrade the guest cluster through Rancher** independently of the underlying Harvester version. Harvester only supplies the VMs, networking, and storage (CSI); the guest cluster is otherwise a normal Rancher-managed RKE2/K3s cluster.
+
+Q: What extra infrastructure does provisioning guest clusters on Harvester need in an air-gapped Rancher environment?
+A: A reachable **private container registry** mirroring the RKE2/K3s **system images** and **Rancher agent images**, plus a locally hosted **VM cloud image**, since nodes cannot reach the internet. Rancher must be told to use that mirror via its **system-default-registry** setting so provisioned nodes and the Harvester cloud-provider/CSI images pull from it rather than public registries.

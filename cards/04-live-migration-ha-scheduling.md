@@ -35,3 +35,18 @@ A: Set in the **`overcommit-config`** setting, the defaults are **CPU 1600%, Mem
 
 Q: How do you give a VM dedicated, pinned physical CPUs?
 A: Enable the **CPU Manager (static policy)** on the node, then enable **CPU pinning** on the VM, which sets **`dedicatedCpuPlacement: true`** and creates a 1:1 vCPU-to-physical-CPU mapping in libvirt. This gives latency-sensitive guests stable cores. A pinned VM can only migrate to a target node that **also has the CPU Manager enabled**.
+
+Q: What timeouts can cause a live migration to fail, and how are they tuned?
+A: Two, both set in the **`kubevirt-migration`** setting:
+- **`completionTimeoutPerGiB`** — fails the migration if it runs longer than about 150 s per GiB of VM memory (an 8 GiB VM is roughly 1200 s).
+- **`progressTimeout`** — aborts if memory copy makes **no progress for ~150 s**.
+When memory dirties faster than it copies, enable **`allowAutoConverge`** to throttle the guest CPU so the migration can converge.
+
+Q: How do you cancel an in-progress live migration, and when should you not?
+A: Use **⋮ > Abort Migration** on the migrating VM; it is only available while a migration is active and rolls the VM back to its source node. **Do not** abort migrations that Harvester triggers **automatically in batches** during node maintenance or a cluster **upgrade** — cancelling those can disrupt the orchestrated drain.
+
+Q: When you migrate a VM manually, do you choose the destination node?
+A: Yes — the **Migrate** action lets you **pick a target node** (or leave it to the scheduler) and Apply. The option is unavailable on single-node clusters, for non-migratable VMs, or while a migration is already running. During **maintenance or upgrade**, targets are chosen **automatically** as VMs are evacuated node by node.
+
+Q: How do you relocate a VM that cannot be live-migrated?
+A: **Cold-migrate** it: **stop** the VM (its cluster-wide Longhorn volumes detach), then **start** it again so the scheduler places the fresh `VirtualMachineInstance` on another eligible node. This moves VMs with PCI/vGPU passthrough, single-replica or CD-ROM volumes, or strict node selectors — at the cost of **downtime** that live migration would avoid.

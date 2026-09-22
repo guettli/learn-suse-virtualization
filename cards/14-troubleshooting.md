@@ -35,3 +35,15 @@ A: Check the **upgrade objects and System Upgrade Controller plan pods** (`kubec
 
 Q: Where are the key logs when debugging a VM or storage problem?
 A: The **virt-launcher pod** logs (`kubectl logs -n <ns> virt-launcher-<vm>-xxxxx`) for the VM/QEMU itself, and **longhorn-manager** plus engine/replica pods in `longhorn-system` for storage. Node-level KubeVirt logs come from the **virt-handler** daemonset pods.
+
+Q: A VM (or its VMI) is stuck in "Terminating" and won't disappear — cause, check, and fix?
+A: Cause: the **virt-launcher pod can't finish terminating** (a wedged QEMU or a volume that won't unmount), so a **finalizer** keeps the object alive. Check `kubectl get vmi -n <ns>` and `kubectl describe` the launcher pod for the blocking condition, plus longhorn-manager for a detach failure. Fix: **force-delete the virt-launcher pod** (`--grace-period=0 --force`); only strip the finalizer by hand as a last resort once the pod is truly gone.
+
+Q: A Longhorn volume is stuck "Attaching" or "Detaching" so the VM won't start — cause and fix?
+A: Cause: a **stale VolumeAttachment or a crashed `instance-manager`** still holds the volume, or the previous launcher pod never released it. Check the volume state in the **Longhorn UI** and the **`instance-manager`** pods in `longhorn-system`. Fix: make sure the old launcher pod is gone, then **restart/delete the affected instance-manager pod** so it re-reconciles, and confirm no two nodes are claiming the same volume.
+
+Q: A VM stays pending with an "Insufficient cpu/memory" event — what does it mean and how do you resolve it?
+A: The **virt-launcher pod can't be scheduled** because no node satisfies the VMI's CPU/memory **requests** (VM reservation plus virt overhead exceeds free capacity). Check the pod's **FailedScheduling** event via `kubectl describe vmi/<name>`, and compare **`kubectl get vmi -o wide`** with node allocatable. Fix: free or add node capacity, shrink the VM's reservation, or tune the **`overcommit-config`** setting so requests are a fraction of the limits.
+
+Q: A VM backup or snapshot fails to complete — likely cause, check, and fix?
+A: For **backups** the usual culprit is an **unreachable/misconfigured backup target** (wrong S3 endpoint or credentials, bad NFS path); **snapshots** instead just need healthy in-cluster Longhorn. Check the **`backup-target`** setting plus the `VirtualMachineBackup` status conditions/events and longhorn-manager logs. Fix: correct the endpoint/bucket/credentials (or NFS mount), verify network and cert reachability, then retry — and remember backups only cover **Longhorn volumes**.

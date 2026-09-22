@@ -38,3 +38,15 @@ A: The default **MTU is 1500**. If you raise it for jumbo frames (e.g. to boost 
 
 Q: How can a VM's VLAN network affect live migration?
 A: A VM can only migrate to a host where its network is actually available. If the VM uses a VLAN network whose **cluster network / uplink does not span the destination node**, that node fails the scheduling rules and migration is blocked. Ensure the VLAN cluster network config covers all candidate nodes so the VM can move.
+
+Q: How do you apply a cluster network's uplink configuration to only some hosts, and what happens to hosts it does not cover?
+A: Each ClusterNetwork holds one or more **Network Configs**, and each config is bound to a set of hosts by **node selection** (all nodes, a **node-label** selector, or hand-picked nodes) — so hosts with different NIC layouts each get a suitable config. On any host **not covered** by a config the cluster network stays **inactive**, and a VM using a VM network on it **cannot be scheduled or migrated there**. Best practice is one config per node/group to ease NIC maintenance.
+
+Q: What must you specify when enabling the storage network, and why size its IP range generously?
+A: The storage network is built from a **VLAN ID**, a **cluster network**, an **IP Range (CIDR)**, and an optional **Exclude** list, together forming a Multus NAD that Longhorn pods attach to. Size the range for **future growth**: Longhorn pods take one IP each and are **restarted** whenever you add nodes or disks, and if the required IPs **exceed the range** those pods fail to start. All VMs must be stopped to (re)configure it.
+
+Q: Why do VMs attached to the built-in mgmt network see an effective MTU of 1450 rather than 1500?
+A: On `mgmt`, VM traffic rides the cluster's pod **VXLAN overlay** (RKE2's **Canal = Calico + Flannel**), which reserves roughly **50 bytes** of encapsulation header. VM interfaces therefore inherit an effective **MTU of 1450**. Guests that assume 1500 (or jumbo frames) can see fragmentation or black-holed large packets; putting VMs on a dedicated **VLAN network** over a separate uplink avoids this overlay tax.
+
+Q: In what scope does a Harvester VM (VLAN) network live, and how does that constrain which VMs can attach to it?
+A: A VM network is a **NetworkAttachmentDefinition created in a specific namespace**, so it is **namespace-scoped**. A VM normally attaches only to a network in **its own namespace** (cross-namespace use requires an explicit `namespace/name` reference), which lets Harvester hand out networks per tenant/project via RBAC. The physical uplink/VLAN is cluster-wide, but the NAD object VMs reference is namespaced.

@@ -38,3 +38,18 @@ A: Install Harvester on the new host in **Join** mode, giving it the cluster's *
 
 Q: What must you do to safely remove a node from the cluster?
 A: Confirm the remaining nodes have enough CPU/memory/storage and that Longhorn volumes are healthy; **evict Longhorn replicas** off the node; handle non-migratable VMs (shutdown/snapshot); put the node into **Maintenance Mode** so live-migratable VMs drain off; then run the RKE2 uninstall script (`/opt/rke2/bin/rke2-uninstall.sh`) on it and **delete the host** from the UI.
+
+Q: In the install config, what is the difference between `install.device` and `install.data_disk`?
+A: **`install.device`** is the disk that receives the **Harvester OS** (e.g. `/dev/sda`). **`install.data_disk`** optionally places **VM/Longhorn data on a separate disk** (e.g. `/dev/sdb`); if omitted it defaults to `install.device`, so OS and VM data share one disk. Prefer stable `/dev/disk/by-id/...` paths so device naming survives reboots.
+
+Q: How do you set the node OS login credentials in the install config?
+A: Under `os:` set **`password`** for the default **`rancher`** user (plain text or a hashed value such as SHA-512) and **`ssh_authorized_keys`** for key-based login — entries may be raw public keys or the **`github:<user>`** shorthand that pulls keys from GitHub. These govern **host-level SSH** access and are separate from the dashboard admin password.
+
+Q: What are the minimum versus production hardware requirements for a node?
+A: Approximately:
+- **Dev/test:** 8 CPU cores, 32 GB RAM, 250 GB disk, 1 Gbps NIC.
+- **Production:** 16 cores, 64 GB RAM, 500 GB+ disk (1 TB recommended), 10 Gbps NICs.
+Disks should sustain **5,000+ random IOPS (SSD/NVMe)**, only local disks or hardware RAID are supported, **hardware-assisted virtualization (VT-x/AMD-V)** is required, and each node needs a unique `product_uuid`.
+
+Q: Why configure NTP servers at install time, and how?
+A: Set **`os.ntp_servers`** in the config (FQDNs or IPs). Synchronized clocks across nodes are needed for **etcd**, TLS certificates, and cluster coordination; **clock skew** between nodes can cause join failures and instability. Configuring NTP up front keeps time consistent across the cluster from first boot.

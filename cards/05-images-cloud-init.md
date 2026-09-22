@@ -33,3 +33,26 @@ A: **Cloud images** (qcow2/raw) ship pre-installed with the OS and the **cloud-i
 
 Q: How do you install a guest from an ISO in Harvester?
 A: Attach the ISO as a **cd-rom** type volume and add a blank **disk** volume for the target. Use **bootOrder** so the VM boots the CD-ROM first, run the installer onto the disk, then set the disk's boot order ahead of the CD-ROM so later boots come from the installed system. ISO-backed (and CD-ROM) volumes are not live-migratable.
+
+Q: What controls how many replicas an uploaded image is stored with?
+A: For the Longhorn **V1** backend, Harvester creates a **per-image StorageClass** that **inherits the replica count** (and node/disk selectors) from the storage settings — typically Longhorn's default of **3 replicas**. That governs redundancy of the cached **backing image**; VM disks cloned from it then follow their own volume's StorageClass replica count.
+
+Q: How can you tell whether a new image is usable, and what does a failed image mean?
+A: An image shows a **progress percentage** while it downloads or uploads and becomes **Active/Ready** at 100%; a VM can only use it once ready. A **Failed** image typically means an unreachable URL, a wrong/unsupported format, or insufficient space — the image object records the error, and you usually **delete and recreate** it (URL-sourced images can be retried) rather than repairing it in place.
+
+Q: How can cloud-init data be supplied from a Secret instead of inline in the VM spec?
+A: KubeVirt's NoCloud disk accepts **`userDataSecretRef`** and **`networkDataSecretRef`**, pointing at a **Secret** that holds the user-data / network-data. This keeps **sensitive values** (passwords, tokens) out of the `VirtualMachine` object and lets several VMs share one managed Secret, instead of embedding the config as inline `userData`/`networkData`.
+
+Q: What does a network-data document for a static IP look like?
+A: cloud-init **network-data** uses **netplan v2** syntax, applied by the cloud image at first boot:
+```yaml
+version: 2
+ethernets:
+  enp1s0:
+    dhcp4: false
+    addresses: [192.168.1.50/24]
+    gateway4: 192.168.1.1
+    nameservers:
+      addresses: [192.168.1.1]
+```
+Match the key to the guest's NIC name; omit the block or set `dhcp4: true` to fall back to DHCP.

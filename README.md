@@ -8,11 +8,12 @@ hyperconverged-infrastructure (HCI) product formerly and still known upstream as
 **Harvester**. It runs virtual machines on Kubernetes using KubeVirt, with
 distributed storage from SUSE Storage (Longhorn), and integrates with Rancher.
 
-The deck is a **deep dive** (150+ cards) aimed at people who already know Kubernetes.
+The deck is a **deep dive** (250+ cards) aimed at people who already know Kubernetes.
 It deliberately contains **no Kubernetes basics** — it covers what is specific to SUSE
-Virtualization / Harvester: architecture, VM lifecycle, live migration & HA, networking,
-storage, backup/restore, Rancher integration, upgrades, observability, CRDs/internals,
-tooling, and troubleshooting.
+Virtualization / Harvester: architecture, installation & nodes, VM lifecycle, live migration
+& HA, images & cloud-init, networking, storage, backup/restore, Rancher integration, upgrades,
+observability, CRDs/internals, CLI/API/Terraform, troubleshooting, security & RBAC, and
+device/GPU passthrough.
 
 > Content targets **SUSE Virtualization v1.7** (the latest GA line) and is based on the
 > official documentation. It is a community learning aid, not an official SUSE product.

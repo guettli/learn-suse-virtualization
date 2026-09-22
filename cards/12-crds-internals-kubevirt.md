@@ -41,3 +41,15 @@ A: Firmware is set via `spec.domain.firmware.bootloader`: **BIOS by default**, o
 
 Q: Why do VMs appear as pods to the Kubernetes scheduler?
 A: Because KubeVirt wraps each VMI in a **virt-launcher pod**, the scheduler only ever sees a normal pod with CPU/memory requests. This is KubeVirt's design ("the Razor"): reuse the existing pod machinery so **scheduling, networking (Multus), storage (CSI), and quotas** apply to VMs exactly as they do to containers, with QEMU/KVM hidden inside the pod.
+
+Q: What does the `blockdevices.harvesterhci.io` CRD represent, and which component manages it?
+A: Each **`BlockDevice`** (`harvesterhci.io/v1beta1`) mirrors one physical disk on a node — filesystem state, mount point, UUID/WWN — and is created and reconciled by **node-disk-manager (NDM)**: a scanner discovers disks, a controller updates the CRs. Its key field **`spec.provisioner`** decides whether the disk is provisioned for **Longhorn V1, Longhorn V2, or LVM**; every disk needs a unique **WWN** or NDM refuses to add it.
+
+Q: What is the `KeyPair` CRD and how do its keys reach a VM?
+A: **`KeyPair`** (`harvesterhci.io/v1beta1`) stores a named **public SSH key** (in `spec.publicKey`) in the cluster so it can be reused across VMs. Selecting it at VM creation performs **static injection** — the key is placed in the guest's **cloud-init** at first boot. Harvester can also **dynamically** push keys into a running guest via the **qemu-guest-agent** propagation method.
+
+Q: How are cluster-wide options like `backup-target` or `overcommit-config` stored under the hood?
+A: As **`Setting`** objects (`settings.harvesterhci.io`, `harvesterhci.io/v1beta1`) — a flat, **cluster-scoped** CRD where each named object (e.g. `backup-target`, `vip-pools`, `overcommit-config`, `support-bundle-timeout`) carries a `value`. `kubectl get settings.harvesterhci.io` lists them and `kubectl edit` changes one without the UI; this is the same store the Settings page writes to.
+
+Q: Which Harvester CRDs drive a cluster upgrade, and what does each hold?
+A: A **`Version`** (`harvesterhci.io/v1beta1`, namespace `harvester-system`) describes an available release — **`isoURL`**, **`isoChecksum`**, `releaseDate`. Creating an **`Upgrade`** object then starts the process, and its **`status`** tracks per-node/component progress. Both live in `harvester-system` (`kubectl get version,upgrade -n harvester-system`); the actual node work runs through **System Upgrade Controller** plans.

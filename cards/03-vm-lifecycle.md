@@ -41,3 +41,15 @@ A: The UI offers a **graphical VNC console** and a **serial (text) console** to 
 
 Q: What happens to a VM's volumes when you delete the VM?
 A: Delete is selective: the UI lets you choose which attached **volumes/PVCs are deleted along with the VM** and which are **retained**. Typically the root disk is removed while data volumes can be kept for reuse. Retained volumes stay as Longhorn PVCs until you delete them explicitly.
+
+Q: How does CPU and memory hotplug let you resize a running VM?
+A: Tick **Enable CPU and Memory Hotplug** when creating the VM; Harvester then computes a **maximum** as the allocated amount times the global **`max-hotplug-ratio`** (default **4**, range 1–20). Later you raise cores/RAM live and Harvester **live-migrates** the VM onto a node with the new size, so the VM must be **migratable**. On **x86** both CPU and memory are hot; on **ARM64** only memory is hot and CPU changes need a restart.
+
+Q: How do you enable UEFI, Secure Boot, and a virtual TPM for a VM?
+A: A VM boots in either **BIOS** or **UEFI (EFI)** firmware. **Secure Boot** is an option layered on UEFI and needs an image that supports it. **Enable TPM** adds an emulated **TPM 2.0** device. Windows 11 guests require the full set — **UEFI + Secure Boot + TPM 2.0** — or Setup refuses to install.
+
+Q: What does enabling the USB tablet input device fix for a VM?
+A: It adds a **USB tablet (absolute-pointer)** input device to the guest. Without it the graphical/VNC console uses a relative PS/2 mouse, so the guest cursor **drifts out of sync** with your real pointer. The USB tablet makes pointer position **absolute**, so clicks land where you aim in the web console.
+
+Q: What is the difference between adding an image-backed volume and a blank data volume to a VM?
+A: An **image-backed (VM Image) volume** is cloned from a golden OS image and is normally the **bootable root disk**. A **blank data volume** provisions an **empty** PVC of a chosen size, StorageClass, and volume mode for the guest to format and use for data. Both are Longhorn PVCs; set **boot order** so the OS disk boots first.

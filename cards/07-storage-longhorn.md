@@ -43,3 +43,20 @@ A: You can install **third-party CSI drivers** and create StorageClasses against
 
 Q: Why do live-migratable VMs need ReadWriteMany volumes, and how does that relate to backups?
 A: Live migration briefly runs the VM on two nodes, so its volume must allow attach from multiple nodes — **ReadWriteMany (RWX)** with the StorageClass `migratable` parameter enabled (a single-replica or RWO volume is not migratable). Separately, volume **snapshots** are in-cluster restore points, whereas **backups** copy volume data to an external **backup target** (S3/NFS) for off-cluster recovery.
+
+Q: How does Longhorn place a volume's replicas to survive a node failure, and how can it rebalance them later?
+A: Replica scheduling uses **soft anti-affinity** at node (and zone) level. With **Replica Node Level Soft Anti-Affinity** left **disabled** (the default) Longhorn will **not co-locate two replicas of the same volume on one node**, spreading them across nodes; enabling it only relaxes that when nodes are scarce. **Replica Auto Balance** (`disabled` / `least-effort` / `best-effort`) then migrates replicas onto newly added or lightly loaded nodes to restore even redundancy.
+
+Q: Which Longhorn StorageClass parameters control a volume's redundancy and placement?
+A: The main ones:
+- **numberOfReplicas** (default **3**) — synchronous copies kept for HA.
+- **staleReplicaTimeout** (default **30** min) — when an unhealthy replica is discarded for rebuilds.
+- **dataLocality** (`disabled` / `best-effort` / `strict-local`) — keep a replica on the workload's node.
+- **migratable** (`true`/`false`) — allow live migration (RWX).
+- **diskSelector** / **nodeSelector** — restrict replicas to disks/nodes carrying matching **tags**.
+
+Q: How does Longhorn provide encryption-at-rest for a VM volume?
+A: Set **`encrypted: "true"`** on the StorageClass and reference a Kubernetes **Secret** through the CSI `node-publish-secret-name`/`-namespace` (and provisioner/stage secret) parameters. Longhorn then encrypts the block device with **LUKS / `dm-crypt`**, unlocking it using the passphrase in the secret's **`CRYPTO_KEY_VALUE`** field. You can share one global secret across volumes or use a per-volume secret; the passphrase is needed each time the volume attaches.
+
+Q: How do you reclaim space that deleted files still occupy inside a Longhorn volume?
+A: Run **Trim Filesystem** on the attached volume (UI action, host `fstrim`, or a recurring job) — Longhorn discards blocks freed by deleted files on **EXT4/XFS** filesystems (v1.4.0+). Trimming does **not** reclaim data pinned in existing **snapshots** (they are immutable), so that space is freed only when the snapshot is removed, which can optionally be automated during the trim.

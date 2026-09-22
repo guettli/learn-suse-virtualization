@@ -36,3 +36,15 @@ A: Audit logs flow through the same logging pipeline but are opt-in: the `Output
 
 Q: What is a support bundle and when do you use it?
 A: A **support bundle** is a downloadable archive of cluster logs, YAMLs, and diagnostics for troubleshooting or support cases. Generate it via **Support > Generate Support Bundle** in the UI (backed by `SupportBundle` objects, `kubectl get supportbundle -A`). Tune scope with the **`support-bundle-namespaces`** setting and time limit with **`support-bundle-timeout`**.
+
+Q: How do you make the embedded Prometheus retain metrics across pod restarts and for a longer window?
+A: Both are fields on the **`Prometheus` CR** the monitoring operator manages: **`retention`** sets the time window (the rancher-monitoring default is short — on the order of **10 days** — and can be raised), while **`storageSpec`** binds a **PersistentVolumeClaim** so the TSDB survives restarts. With no `storageSpec` PVC the data lives in **emptyDir** and is **lost whenever the pod moves**.
+
+Q: How do you add a custom, persistent Grafana dashboard to the embedded monitoring?
+A: Create a **ConfigMap in the `cattle-dashboards` namespace** holding the dashboard JSON and carrying the label **`grafana_dashboard: "1"`** — Grafana's sidecar auto-loads any ConfigMap so labeled. Because it is a ConfigMap it **survives pod restarts**, but it **cannot be edited or deleted from the Grafana UI**; you change the ConfigMap instead.
+
+Q: How do you define your own alerting rule for the embedded Prometheus?
+A: Create a **`PrometheusRule`** CR (`monitoring.coreos.com/v1`) in **`cattle-monitoring-system`** with the label **`release: rancher-monitoring`** so the Prometheus Operator discovers it. Its `spec.groups[].rules` hold the **PromQL** alert expressions; firing alerts then reach Alertmanager and exit through your `AlertmanagerConfig` receivers.
+
+Q: How do you route firing alerts to Slack or email from the embedded stack?
+A: Slack and email are **native Alertmanager receivers**, so you configure them directly in a namespaced **`AlertmanagerConfig`** — a receiver with **`slackConfigs`** or **`emailConfigs`**, wired in by a `route`. Only non-native targets such as **Microsoft Teams or SMS** require the extra **`rancher-alerting-drivers`** chart (prom2teams / sachet).

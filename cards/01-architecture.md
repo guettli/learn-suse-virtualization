@@ -72,3 +72,15 @@ Q: At a high level, what happens when you start a VM in SUSE Virtualization?
 A: The `VirtualMachine` object is set to running → KubeVirt creates a `VirtualMachineInstance`
 → the scheduler places a **virt-launcher** pod on a node → libvirt/QEMU boots the guest, with
 its Longhorn volumes attached via CSI and its NICs wired through Multus.
+
+Q: What is the Harvester addon framework and what does it provide?
+A: Harvester ships a **minimal base** and packages optional features as **Addons** (an `Addon` CRD) that you **Enable/Disable** from the UI or `kubectl`. Enabling deploys the component (a Helm chart) into the cluster; disabling removes it but **keeps its configuration** for quick re-enable. Examples include `rancher-monitoring`, `rancher-logging`, `pcidevices-controller`, `vm-import-controller`, and `nvidia-driver-toolkit`.
+
+Q: Which core components run in the harvester-system namespace?
+A: The product's control plane lives in **`harvester-system`**: the **harvester** API/controller and its **harvester-webhook**, the **KubeVirt operator** with `virt-api`/`virt-controller`/`virt-handler`, the embedded **Rancher**, and the **harvester-network-controller**. Longhorn's own pods run separately in **`longhorn-system`**. All of them are ordinary Deployments/DaemonSets managed by RKE2.
+
+Q: What does Harvester add on top of plain KubeVirt?
+A: KubeVirt only supplies the VM runtime. Harvester wraps it into a **turnkey HCI appliance**: an **immutable OS + RKE2**, integrated **Longhorn** storage, a management **VIP**, **Multus/VLAN** VM networks, a purpose-built **dashboard**, images/templates/backups as first-class objects, and **Rancher** multi-cluster integration. You install on bare metal and get working VMs without assembling the stack yourself.
+
+Q: How does Harvester expose host PCI devices and GPUs to VMs?
+A: Enable the **`pcidevices-controller`** addon; it scans nodes and lets you create a **`PCIDeviceClaim`** to pass a device through to a VM. For NVIDIA vGPU, the **`nvidia-driver-toolkit`** addon installs the host driver so a physical GPU can be sliced into vGPU profiles. Any VM using passthrough or vGPU becomes **non-migratable**.

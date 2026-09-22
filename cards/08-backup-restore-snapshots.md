@@ -43,3 +43,15 @@ A: SUSE Virtualization supports **scheduled** VM backups and snapshots (a VM sch
 - **Cron Schedule** — a cron expression (minimum interval **one hour**).
 - **Retain** — number of most-recent backups/snapshots to keep; older ones are pruned automatically.
 - **Max Failure** — consecutive failures allowed before the schedule is suspended.
+
+Q: After the first VM backup to a target, are later backups full copies or incremental?
+A: Only the **first** backup of a volume is a **full** copy; every later backup is **incremental**, storing just the **changed 2 MB blocks** since the previous one. Blocks are content-addressed and **shared** across backups, so deleting one backup frees only the blocks that no remaining backup references. This keeps repeated backups small, but a backup chain depends on those shared blocks staying present.
+
+Q: Beyond individual VM backups, how can you protect and restore the whole Longhorn/SUSE Storage configuration?
+A: Longhorn offers a **System Backup** that bundles its **custom resources** — settings, StorageClasses, recurring jobs, backing images, and volume/backup metadata — into one file on the **backup target**. A **System Restore** rebuilds that configuration on the same or a new cluster (handy to roll back after a failed upgrade). It restores **configuration, not live volume data/PVCs**, which are recovered separately from volume backups.
+
+Q: Can Longhorn V2 (SPDK) data-engine volumes be backed up and snapshotted like V1 volumes?
+A: Yes, but only from **v1.7.0 onward** — earlier releases supported backups and snapshots only for **V1** volumes. From v1.7 the same **VM backup, VM snapshot, and volume snapshot** workflows apply to **V2 data-engine** volumes. Because V2 is newer, verify exact feature parity in the release notes before relying on it for production data protection.
+
+Q: When a VM with several disks is backed up, are all its volumes captured at the same point in time?
+A: A VM backup/snapshot takes a snapshot of **every volume as one group**, so the disks form a consistent **point-in-time set** rather than being captured one-by-one at drifting moments. With the **QEMU guest agent** present the group is additionally **filesystem-quiesced**; without it the set is only crash-consistent. This matters for apps whose state spans disks (for example data and journal on separate volumes).

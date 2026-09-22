@@ -32,3 +32,15 @@ A: From the **kubeconfig**, which carries the client certificate or token that a
 
 Q: How would you script a bulk stop of every VM in a namespace?
 A: Loop over the CRDs with kubectl, e.g. `kubectl get vm -n <ns> -o name | xargs -n1 -I{} virtctl stop -n <ns> {}`, or patch `spec.running=false` on each `VirtualMachine`. Because VMs are CRDs, label selectors (`-l app=web`) let you target subsets for bulk operations.
+
+Q: Beyond opening a console, which VM lifecycle actions does virtctl expose?
+A: **`virtctl start` / `stop` / `restart`** flip the `VirtualMachine`'s running state; **`pause` / `unpause`** freeze and resume a running guest without shutting it down; **`migrate`** triggers a **live migration** to another node. These are the CLI equivalents of the UI's power and migrate actions, all mediated through **virt-api**.
+
+Q: How do `virtctl ssh` and `virtctl scp` reach a VM that has no external IP?
+A: Both **tunnel through the Kubernetes API to the virt-launcher pod**, so no port-forward or routable VM IP is required. `virtctl ssh <user>@vmi/<name>` opens a shell and `virtctl scp <file> <user>@vmi/<name>:<path>` copies files. On KubeVirt v1.5+ the **`vmi/` type prefix is mandatory** (form `TYPE/NAME[/NAMESPACE]`), and the guest still needs a running **sshd**. `virtctl port-forward` similarly maps a local port to the VM.
+
+Q: Since the Harvester API is just the Kubernetes API, what is the minimum you apply with kubectl to create a VM?
+A: A single **`VirtualMachine`** manifest (`kubevirt.io/v1`) whose `spec.template` defines the guest — **`domain`** (CPU/memory, disks), a **`volumes`** list wiring each disk to a Longhorn PVC/DataVolume or a `VirtualMachineImage`-backed claim, and **`networks`/`interfaces`** referencing a NetworkAttachmentDefinition. `kubectl apply -f vm.yaml` creates it exactly as the UI would; there is **no separate Harvester API endpoint**.
+
+Q: In the Harvester Terraform provider, how do you attach an image and cloud-init to a `harvester_virtualmachine`?
+A: Reference the other resources so Terraform orders creation: inside a **`disk`** block set **`image = harvester_image.<name>.id`**, and in the **`cloudinit`** block set **`user_data_secret_name`** (and `network_data_secret_name`) to a **`harvester_cloudinit_secret`**. These links make Terraform build the image and secret **before** the VM and tear them down afterward.
