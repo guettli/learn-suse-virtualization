@@ -51,7 +51,7 @@ Q: Which Longhorn StorageClass parameters control a volume's redundancy and plac
 A: The main ones:
 - **numberOfReplicas** (default **3**) — synchronous copies kept for HA.
 - **staleReplicaTimeout** (default **30** min) — when an unhealthy replica is discarded for rebuilds.
-- **dataLocality** (`disabled` / `best-effort` / `strict-local`) — keep a replica on the workload's node.
+- **dataLocality** (`disabled` (default) / `best-effort`) — keep a replica on the workload's node (SUSE Virtualization does not officially support Longhorn's `strict-local`).
 - **migratable** (`true`/`false`) — allow live migration (RWX).
 - **diskSelector** / **nodeSelector** — restrict replicas to disks/nodes carrying matching **tags**.
 

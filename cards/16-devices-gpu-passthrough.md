@@ -7,7 +7,7 @@ Q: What is the difference between the `PCIDevice` and `PCIDeviceClaim` CRDs?
 A: A **`PCIDevice`** is read-only inventory — it represents one **host device at a PCI address** that the controller discovered. A **`PCIDeviceClaim`** is the request you create (via the UI or directly) to **reserve that device for passthrough**; creating the claim triggers the controller to prepare the device so a VM can own it.
 
 Q: What does claiming a PCI device actually do to the host driver?
-A: The controller **unbinds the device from its host driver and binds it to `vfio-pci`**. That detaches the device from the host OS and hands it to the VMFS/VFIO layer, so the guest can **load its own native driver and directly own the device** rather than sharing a virtualized one.
+A: The controller **unbinds the device from its host driver and binds it to `vfio-pci`**. That detaches the device from the host OS and hands it to the VFIO layer, so the guest can **load its own native driver and directly own the device** rather than sharing a virtualized one.
 
 Q: What firmware prerequisite must be satisfied for PCI passthrough to work at all?
 A: The platform's **IOMMU** must be enabled in firmware — **Intel VT-d** or **AMD-Vi (AMD IOMMU)** — usually alongside virtualization (VT-x/SVM). Without IOMMU the host cannot safely isolate the device's DMA, so `vfio-pci` binding and passthrough will not function even with the add-on enabled.
