@@ -4,7 +4,7 @@ Q: What is ESXi?
 A: **ESXi** is VMware's **type-1 (bare-metal) hypervisor** — it installs directly on server hardware with no underlying host OS and runs virtual machines. Its kernel is the **VMkernel**, which schedules CPU, memory, and I/O for VMs and for the management agents. ESXi is the compute foundation of a vSphere environment.
 
 Q: What is the VMkernel in ESXi?
-A: The **VMkernel** is the core of ESXi — a POSIX-like microkernel that owns the hardware and **schedules CPU, memory, storage, and network I/O** for virtual machines and system processes. Each running VM and system process executes as a scheduled entity called a **world** on top of the VMkernel.
+A: The **VMkernel** is the core of ESXi — a POSIX-like operating-system kernel that owns the hardware and **schedules CPU, memory, storage, and network I/O** for virtual machines and system processes. Each running VM and system process executes as a scheduled entity called a **world** on top of the VMkernel.
 
 Q: What does the hostd agent do on an ESXi host?
 A: **hostd** is the main **host management daemon**. It manages most operations on the host — VMs, storage, networking, and inventory state — and is the process the **VMware Host Client**, the ESXi Shell, and (indirectly) vCenter talk to. If hostd is down, the host cannot be managed even though VMs keep running.

@@ -4,7 +4,7 @@ Q: What is a VM snapshot in vSphere?
 A: A **snapshot** captures a VM's **point-in-time state** — its disks, settings, and optionally memory. After it is taken, the base VMDK is frozen read-only and new writes go to a **delta (child) disk**, so you can revert to that exact state later.
 
 Q: What is the delta (child) disk created by a snapshot?
-A: When you snapshot, the base disk becomes read-only and changes are redirected to a **delta / child disk** (a redo log). It uses the **vmfsSparse** format (`-delta.vmdk`) on older/VMFS, or the newer **SEsparse** (`-sesparse.vmdk`) format for large disks and space reclamation.
+A: When you snapshot, the base disk becomes read-only and changes are redirected to a **delta / child disk** (a redo log). It uses the **vmfsSparse** (redo-log) format (`-delta.vmdk`) on VMFS5, or the newer **SEsparse** (`-sesparse.vmdk`) format — the **default for all snapshots on VMFS6** (and used on VMFS5 for disks larger than 2 TB) — which adds space reclamation.
 
 Q: What is a memory snapshot and quiescing?
 A: A **memory snapshot** also saves the VM's **RAM/running state**, so reverting returns to a live, powered-on point. **Quiescing** instead flushes and pauses the guest file system (via **VMware Tools / Windows VSS**) to capture an **application-consistent, on-disk** state without saving memory.

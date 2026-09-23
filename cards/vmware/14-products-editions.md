@@ -7,7 +7,7 @@ Q: What were the historic vSphere editions before the Broadcom bundles?
 A: Perpetually licensed per-CPU editions such as **vSphere Standard**, **Enterprise**, and **Enterprise Plus** (plus Essentials kits) differentiated features like DRS, vMotion, and DvS. Broadcom retired most of this à-la-carte, perpetual model in favor of a few **subscription bundles**. (Broadcom-era packaging; specifics keep changing.)
 
 Q: What are VCF and VVF in Broadcom's simplified VMware portfolio?
-A: **VMware Cloud Foundation (VCF)** is the top full-stack private-cloud bundle; **VMware vSphere Foundation (VVF)** is the smaller virtualization bundle for general workloads. After acquiring VMware, Broadcom collapsed ~168 SKUs into a handful of bundles centered on these two, plus a basic **vSphere Standard** tier. (Broadcom-era packaging.)
+A: **VMware Cloud Foundation (VCF)** is the top full-stack private-cloud bundle; **VMware vSphere Foundation (VVF)** is the smaller virtualization bundle for general workloads. After acquiring VMware, Broadcom collapsed ~168 SKUs into a small set of subscription offerings centered on these two, plus the smaller **vSphere Standard** and **vSphere Enterprise Plus** tiers. (Broadcom-era packaging.)
 
 Q: How does Broadcom license VMware bundles like VCF and VVF?
 A: Licensing is **subscription**, priced **per physical core**, with a **minimum of 16 cores per CPU**. Broadcom **ended free ESXi and perpetual licensing**, moving everything to term subscriptions. Order minimums have shifted over 2025 (a 72-core-per-order minimum was introduced, then reversed toward 16). Treat exact minimums/prices as volatile.
@@ -39,5 +39,5 @@ A: **VMware Cloud** is VMware's **hybrid-cloud** offering that runs the full **V
 Q: What happened to free ESXi and perpetual VMware licenses under Broadcom?
 A: Broadcom **discontinued the free ESXi hypervisor** and ended **perpetual licensing and Support-and-Subscription renewals** for legacy editions, steering all customers to **term subscriptions** priced per core within the VCF/VVF/Standard bundles. Existing perpetual licenses keep working but generally can't be renewed. (Broadcom-era packaging; details evolve.)
 
-Q: Why did Broadcom reintroduce vSphere Enterprise Plus in 2025?
-A: After heavy pushback on bundle-only licensing, Broadcom (announced at VMware Explore, late 2025) brought back **vSphere Enterprise Plus** as a **subscription** offering for customers wanting vSphere features without a full VCF/VVF bundle, while phasing out **vSphere Essentials Plus**. (Broadcom-era packaging; edition lineup is still shifting — verify against current price/SKU docs.)
+Q: Why did Broadcom reintroduce vSphere Enterprise Plus as a subscription tier?
+A: After pushback on bundle-only licensing, Broadcom announced (November 2024) a standalone **vSphere Enterprise Plus** **subscription** tier for customers wanting advanced vSphere features (DRS, vDS, VM Encryption) without a full VCF/VVF bundle, and discontinued the **vSphere Essentials Plus** kit alongside it. (Broadcom-era packaging; edition lineup keeps shifting — verify against current price/SKU docs.)
