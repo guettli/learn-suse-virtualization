@@ -22,7 +22,7 @@ Q: How does Rancher proxy kubectl/API traffic to a downstream cluster by default
 A: Rancher runs an **authentication proxy**. When you use a Rancher-generated kubeconfig, requests hit the Rancher server, which authenticates you (local, AD, GitHub, SAML, etc.), sets **Kubernetes user-impersonation headers**, and forwards the call over the agent tunnel to the downstream API server.
 
 Q: What is the authorized cluster endpoint (ACE) and when is it used?
-A: The **authorized cluster endpoint (ACE)** lets users talk to a downstream cluster's **Kubernetes API server directly**, bypassing the Rancher auth proxy (useful if Rancher is down). It is available on **RKE2 and K3s** clusters provisioned or registered by Rancher, and uses the **kube-api-auth** microservice for authentication. It is not available on hosted providers like EKS.
+A: The **authorized cluster endpoint (ACE)** lets users talk to a downstream cluster's **Kubernetes API server directly**, bypassing the Rancher auth proxy (useful if Rancher is down). It is available on Rancher-launched **RKE2 and K3s** clusters (it must be explicitly enabled, and is off by default), and uses the **kube-api-auth** microservice as an authentication webhook. It is not available on hosted providers like EKS.
 
 Q: What is the rancher-webhook and where does it run?
 A: The **rancher-webhook** is a Kubernetes **admission controller** (a Deployment) that validates and mutates Rancher-specific resources before they persist. It runs in **both the local and every downstream cluster**, and Rancher manages its `rancher.cattle.io` **ValidatingWebhookConfiguration** and **MutatingWebhookConfiguration** (overriding manual edits).

@@ -32,7 +32,7 @@ A: Fleet supports **drift correction** via **`correctDrift`** (set on the `GitRe
 
 Q: What do the main Fleet bundle status states mean?
 A: - **Ready** — resources applied and matching desired state.
-- **Modified** — live resources drifted from the bundle (or paused for approval).
+- **Modified** — bundle deployed and resources ready, but live resources changed out-of-band from the Git-defined state.
 - **ErrApplied** — applying the bundle failed (e.g. invalid manifest or RBAC error).
 Fleet surfaces these per bundle and per cluster in Continuous Delivery.
 

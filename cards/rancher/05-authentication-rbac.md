@@ -34,7 +34,7 @@ Q: Which global role does a brand-new user receive by default?
 A: New users get the **"New User Default"** global role, which is **Standard User** out of the box. Admins can change which RoleTemplate(s) are marked as the default so new logins land with different baseline permissions.
 
 Q: What is the restricted-admin global role and what is its status?
-A: **restricted-admin** (added in v2.5) has full admin over **downstream clusters but not the local Rancher cluster**, preventing privilege escalation on the management plane. It is **deprecated** (slated for removal ~v2.10+); SUSE recommends building a **custom global role** instead.
+A: **restricted-admin** has full admin over **downstream clusters but not the local Rancher cluster**, preventing privilege escalation on the management plane. It was **deprecated in v2.8, fully deprecated in v2.10, and removed in v2.11**; SUSE recommends a **custom global role** using **`inheritedClusterRoles`** instead.
 
 Q: How can a GlobalRole grant the same cluster permissions on every downstream cluster?
 A: Via its **`inheritedClusterRoles`** field, which lists cluster-context `RoleTemplate`s. Users with that global role automatically receive those permissions on **all current and future downstream clusters**, avoiding per-cluster binding.

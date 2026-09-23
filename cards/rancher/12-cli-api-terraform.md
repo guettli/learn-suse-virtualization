@@ -37,7 +37,7 @@ A: - **`rancher2_catalog_v2`** — register a Helm chart repo (Rancher 2.5+).
 - **`rancher2_user`**, **`rancher2_global_role_binding`**, **`rancher2_cluster_role_template_binding`**, **`rancher2_project_role_template_binding`** — users and RBAC bindings.
 
 Q: How can Fleet GitRepos be managed via Terraform or CRDs?
-A: Fleet is CRD-driven, so you can `kubectl apply` a **`fleet.cattle.io/v1 GitRepo`** in `fleet-default`/`fleet-local`, or manage it through Terraform (e.g. `rancher2_fleet_git_repo`, or a generic `kubernetes_manifest`). This declaratively points Fleet at a Git repo to continuously deploy across target clusters.
+A: Fleet is CRD-driven, so you can `kubectl apply` a **`fleet.cattle.io/v1 GitRepo`** in `fleet-default`/`fleet-local`. The **rancher2 provider has no dedicated Fleet GitRepo resource**, so from Terraform you apply the GitRepo CRD generically (a `kubernetes_manifest`, or the `kubectl_manifest` provider). This declaratively points Fleet at a Git repo to continuously deploy across target clusters.
 
 Q: How do you automate Rancher directly against its CRDs, and what is Hosted Rancher Prime?
 A: Against the **local** cluster you can `kubectl apply` Rancher CRDs: `management.cattle.io` (clusters, users, tokens, projects) and `provisioning.cattle.io` (`Cluster`) — the API objects the UI/Terraform ultimately write. **Rancher Prime** is the SUSE-supported build; its charts/images come from the **Prime registry** (e.g. `registry.rancher.com`) which needs your Prime entitlement/credentials.

@@ -25,7 +25,7 @@ Q: How is an installed app tracked under the hood?
 A: As a normal **Helm 3 release** (release metadata in a `sha256.helm.release.v1...` Secret in the release namespace) plus a Rancher **wrapper**: an install/upgrade/uninstall runs in a **Helm operation Pod** (a Job), and Rancher records the app so it shows under **Installed Apps**.
 
 Q: What are Rancher "cluster tools"?
-A: A curated set of first-party charts surfaced in the UI, including **Monitoring**, **Logging**, **Istio**, **Longhorn**, **NeuVector**, **CIS Benchmark**, **OPA/Kubewarden**, and **Alerting**. They are just charts from the Rancher repo, pre-integrated with Rancher's dashboards and RBAC.
+A: A curated set of first-party charts surfaced in the UI, including **Monitoring**, **Logging**, **Istio**, **Longhorn**, **NeuVector**, **CIS Benchmark**, **Kubewarden** (the current policy engine; the older **OPA Gatekeeper** integration is deprecated), and **Alerting**. They are just charts from the Rancher repo, pre-integrated with Rancher's dashboards and RBAC.
 
 Q: What does a chart's questions.yaml file do?
 A: **`questions.yaml`** is a Rancher-specific file that drives a **form-based UI** for chart values. Each question maps to a path in `values.yaml`, so users configure the chart through drop-downs and fields instead of editing raw YAML. It is optional and ignored by plain Helm.
