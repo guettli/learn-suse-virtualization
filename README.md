@@ -3,15 +3,16 @@
 [![build-deck](https://github.com/guettli/learn-suse-virtualization/actions/workflows/build.yml/badge.svg)](https://github.com/guettli/learn-suse-virtualization/actions/workflows/build.yml)
 [![latest release](https://img.shields.io/github/v/release/guettli/learn-suse-virtualization)](https://github.com/guettli/learn-suse-virtualization/releases/latest)
 
-Open-source **Anki flashcards for learning the SUSE cloud-native stack**. Each subject is a
-separate importable Anki deck. The cards are **deep dives** aimed at people who already know
-Kubernetes — they deliberately contain **no Kubernetes basics**, only what is specific to
-each product.
+Open-source **Anki flashcards for learning the SUSE cloud-native stack** (and the VMware
+terminology you'll want when migrating to it). Each subject is a separate importable Anki
+deck. The SUSE decks are **deep dives** aimed at people who already know Kubernetes — they
+deliberately contain **no Kubernetes basics**, only what is specific to each product.
 
 | Deck | What it covers | Download |
 |------|----------------|----------|
 | **SUSE Virtualization** | The SUSE HCI product (upstream **Harvester**) — VMs on Kubernetes via KubeVirt, SUSE Storage/Longhorn, networking, backup, upgrades, GPU passthrough, and more. Targets **v1.7**. | [**learn-suse-virtualization.apkg**](https://github.com/guettli/learn-suse-virtualization/releases/latest/download/learn-suse-virtualization.apkg) |
 | **Rancher** | The SUSE **Rancher** suite — multi-cluster management, provisioning, Fleet GitOps, auth/RBAC, projects, Apps, monitoring/logging/backup, RKE2 & K3s, NeuVector, Elemental. | [**learn-rancher.apkg**](https://github.com/guettli/learn-suse-virtualization/releases/latest/download/learn-rancher.apkg) |
+| **VMware** | **VMware vSphere** terminology & concepts — ESXi, vCenter, VMs, DRS/HA, vMotion, storage/VMFS/vSAN, vSS/vDS networking, NSX, snapshots/templates, resource management, products/editions — plus migrating to SUSE Virtualization. Handy when coming from VMware. | [**learn-vmware.apkg**](https://github.com/guettli/learn-suse-virtualization/releases/latest/download/learn-vmware.apkg) |
 
 > Community learning aids based on the official documentation — not official SUSE products.
 > Sources: <https://documentation.suse.com/cloudnative/virtualization/>,

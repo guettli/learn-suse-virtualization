@@ -57,12 +57,14 @@ jobs:
           ### Decks
           - **SUSE Virtualization** — \`learn-suse-virtualization.apkg\`
           - **Rancher** — \`learn-rancher.apkg\`
+          - **VMware** — \`learn-vmware.apkg\`
 
           ### Install
           Download a deck's **\`.apkg\`** below and in Anki choose **File → Import**.
           Newest deck downloads (no login required):
           - <https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/learn-suse-virtualization.apkg>
           - <https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/learn-rancher.apkg>
+          - <https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/learn-vmware.apkg>
 
           A plain \`.tsv\` for each deck is also attached (import with Tab separator,
           "Allow HTML", field 3 = Tags).

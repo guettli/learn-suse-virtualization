@@ -1,4 +1,4 @@
-# VMware Migration
+# Migrating to SUSE Virtualization
 
 Q: What changed in the VMware ecosystem that is driving migrations to SUSE Virtualization?
 A: **Broadcom's acquisition of VMware** shifted vSphere to subscription-only, **per-core licensing** with large price increases, product bundling, and tighter lock-in. This pushed many shops to seek alternatives. **SUSE Virtualization** (upstream **Harvester**) is positioned as an open-source, Kubernetes-native cloud alternative to vSphere.

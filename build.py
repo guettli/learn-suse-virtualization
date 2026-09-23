@@ -57,6 +57,13 @@ DECKS = {
         "out": "learn-rancher",
         "legacy_guid": False,
     },
+    "vmware": {
+        "name": "VMware",
+        "deck_id": 1759000002222,
+        "model_id": 1759000008888,
+        "out": "learn-vmware",
+        "legacy_guid": False,
+    },
 }
 
 CARD_CSS = (
