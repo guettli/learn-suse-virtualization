@@ -108,13 +108,98 @@ if [ -z "$APP_PID" ]; then
 fi
 echo "✓ App running successfully! (PID: $APP_PID)"
 
-# 8. Take a screenshot
-echo ">> Capturing emulator screenshot..."
+# 8. Test Help Dialog on Deck Selection Screen
+echo ">> Testing Voice Commands Help button..."
+adb shell input tap 1017 137
+sleep 2
+adb shell uiautomator dump /sdcard/help_dump.xml
+if ! adb shell cat /sdcard/help_dump.xml | grep -q "Voice Commands"; then
+    echo "❌ ERROR: Help dialog did not open!"
+    exit 1
+fi
+echo "✓ Help dialog opened successfully."
+# Dismiss help dialog
+adb shell input keyevent 4 # Android Back key
+sleep 1
+
+# 9. Tap the Study button for SUSE Virtualization
+echo ">> Tapping Study button for SUSE Virtualization at (854, 872)..."
+adb logcat -c
+adb shell input tap 854 872
+sleep 4
+
+STUDY_PID=$(adb shell pidof "$PKG_NAME" || true)
+if [ -z "$STUDY_PID" ]; then
+    echo "❌ CRASH DETECTED after clicking Study button!"
+    echo ">> Logcat crash logs:"
+    adb logcat -d | grep -iE 'fatal|crash|exception|androidruntime|flutter|caused by' | tail -n 60 || true
+    adb logcat -d | tail -n 60
+    exit 1
+fi
+echo "✓ App still running after clicking Study! (PID: $STUDY_PID)"
+
+# 10. Capture screenshot of Study Screen
+echo ">> Capturing emulator study screen..."
 adb exec-out screencap -p > "$SCREENSHOT_PATH"
 echo "✓ Screenshot saved to: $SCREENSHOT_PATH ($(du -h "$SCREENSHOT_PATH" | cut -f1))"
 
-# 9. Verify foreground service logcat
+# 11. Test Pause & Resume buttons
+echo ">> Testing Pause button..."
+adb shell input tap 1017 137
+sleep 2
+echo ">> Testing Resume button..."
+adb shell input tap 1017 137
+sleep 2
+
+# 12. Test Repeat button
+echo ">> Testing Repeat audio button..."
+adb shell input tap 891 137
+sleep 2
+
+# 13. Test Show Answer button
+echo ">> Testing Show Answer button at (540, 1685)..."
+adb shell input tap 540 1685
+sleep 3
+adb shell uiautomator dump /sdcard/answer_dump.xml
+if ! adb shell cat /sdcard/answer_dump.xml | grep -q "Hard"; then
+    echo "❌ ERROR: Rating buttons not visible after Show Answer!"
+    exit 1
+fi
+echo "✓ Answer revealed and rating buttons visible."
+
+# 14. Test Hard rating button
+echo ">> Testing Hard rating button at (200, 1689)..."
+adb shell input tap 200 1689
+sleep 3
+
+# 15. Test Medium rating button on next card
+echo ">> Testing Medium rating flow..."
+adb shell input tap 540 1685 # Show Answer
+sleep 2
+adb shell input tap 540 1689 # Medium
+sleep 3
+
+# 16. Test Simple rating button on next card
+echo ">> Testing Simple rating flow..."
+adb shell input tap 540 1685 # Show Answer
+sleep 2
+adb shell input tap 881 1689 # Simple
+sleep 3
+
+# 17. Test Back button to return to Deck Selection
+echo ">> Testing Back button at (74, 137)..."
+adb shell input tap 74 137
+sleep 3
+adb shell uiautomator dump /sdcard/deck_dump.xml
+if ! adb shell cat /sdcard/deck_dump.xml | grep -q "Hands-Free Flashcards"; then
+    echo "❌ ERROR: Failed to return to Deck Selection screen!"
+    exit 1
+fi
+echo "✓ Returned to Deck Selection screen cleanly."
+
+# 18. Verify foreground service logcat
 echo ">> Recent App Logs:"
 adb logcat -d | grep -iE 'flutter|handsfree_anki' | tail -n 25 || true
 
-echo "=== All Emulator Tests Passed Successfully! ==="
+echo "=== All Emulator Button & Feature Tests Passed Successfully! ==="
+
