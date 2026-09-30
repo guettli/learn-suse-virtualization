@@ -1,0 +1,80 @@
+name: app-ci
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'scripts/**'
+      - '.github/workflows/app-ci.yml'
+  pull_request:
+    paths:
+      - 'app/**'
+      - 'scripts/**'
+      - '.github/workflows/app-ci.yml'
+  workflow_dispatch:
+
+jobs:
+  test-and-build:
+    name: Flutter Test & Build APK
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: app
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 1. Setup Java for Gradle / Android toolchain with built-in Gradle caching
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      # 2. Setup Flutter with SDK caching
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.5'
+          channel: 'stable'
+          cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:'
+          cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:'
+
+      # 3. Cache Pub packages
+      - name: Cache Pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            app/.dart_tool
+          key: ${{ runner.os }}-pub-${{ hashFiles('app/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      # 4. Resolve dependencies
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 5. Static analysis
+      - name: Analyze code
+        run: flutter analyze --no-fatal-infos
+
+      # 6. Run automated test suite
+      - name: Run tests
+        run: flutter test
+
+      # 7. Build Android Debug APK
+      - name: Build Android Debug APK
+        run: flutter build apk --debug
+
+      # 8. Upload built APK as workflow artifact
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: handsfree-anki-debug-apk
+          path: app/build/app/outputs/flutter-apk/app-debug.apk
