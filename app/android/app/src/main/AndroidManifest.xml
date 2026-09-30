@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.guettli.handsfree_anki">
 
     <!-- Audio recording & Speech recognition -->
@@ -48,7 +49,8 @@
         <service
             android:name="id.flutter.flutter_background_service.BackgroundService"
             android:foregroundServiceType="microphone"
-            android:exported="false" />
+            android:exported="false"
+            tools:replace="android:exported" />
 
         <meta-data
             android:name="flutterEmbedding"

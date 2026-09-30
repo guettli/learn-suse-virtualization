@@ -1,3 +1,4 @@
 [tools]
 python = "3.12"
 flutter = "3.47.5"
+java = "temurin-17.0.20+101"
