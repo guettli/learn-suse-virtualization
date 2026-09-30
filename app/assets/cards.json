@@ -3352,7 +3352,7 @@
           "question": "What are the main differences between K3s and RKE2?",
           "answer": "| | K3s | RKE2 |\n|---|---|---|\n| Focus | Edge/IoT, small footprint | Security/compliance, datacenter |\n| Datastore default | **SQLite** | **embedded etcd** |\n| Hardening | not CIS by default | **CIS-hardened, FIPS-capable** |\n| Control plane | host processes | **static Pods** |\n| Default CNI/ingress | Flannel + Traefik | Canal, no default ingress |",
           "spoken_question": "What are the main differences between K3s and RKE2?",
-          "spoken_answer": "| | K3s | RKE2 | |---|---|---| | Focus | Edge/IoT, small footprint | Security/compliance, datacenter | | Datastore default | SQLite | embedded etcd | | Hardening | not CIS by default | CIS-hardened, FIPS-capable | | Control plane | host processes | static Pods | | Default CNI/ingress | Flannel + Traefik | Canal, no default ingress |"
+          "spoken_answer": "K3s, RKE2. Focus, Edge/IoT, small footprint, Security/compliance, datacenter. Datastore default, SQLite, embedded etcd. Hardening, not CIS by default, CIS-hardened, FIPS-capable. Control plane, host processes, static Pods. Default CNI/ingress, Flannel + Traefik, Canal, no default ingress."
         },
         {
           "id": "404b4e269a53ba2a",
@@ -5700,7 +5700,7 @@
           "question": "How do core vSphere compute concepts map to SUSE Virtualization?",
           "answer": "| vSphere | SUSE Virtualization |\n|---|---|\n| ESXi host | Harvester **node** |\n| vCenter Server | Harvester UI + **Rancher** Virtualization Management |\n| vSphere cluster | Harvester **cluster** |\n| Resource pool | **Namespace/project** + **ResourceQuota** |\n| Virtual machine | **VirtualMachine** (KubeVirt) |",
           "spoken_question": "How do core vSphere compute concepts map to SUSE Virtualization?",
-          "spoken_answer": "| vSphere | SUSE Virtualization | |---|---| | ESXi host | Harvester node | | vCenter Server | Harvester UI + Rancher Virtualization Management | | vSphere cluster | Harvester cluster | | Resource pool | Namespace/project + ResourceQuota | | Virtual machine | VirtualMachine (KubeVirt) |"
+          "spoken_answer": "vSphere, SUSE Virtualization. ESXi host, Harvester node. vCenter Server, Harvester UI + Rancher Virtualization Management. vSphere cluster, Harvester cluster. Resource pool, Namespace/project + ResourceQuota. Virtual machine, VirtualMachine (KubeVirt)."
         },
         {
           "id": "7846fd3366c1a593",

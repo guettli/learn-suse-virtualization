@@ -4,11 +4,13 @@ on:
   push:
     branches: [main]
     paths:
+      - 'cards/**'
       - 'app/**'
       - 'scripts/**'
       - '.github/workflows/app-ci.yml'
   pull_request:
     paths:
+      - 'cards/**'
       - 'app/**'
       - 'scripts/**'
       - '.github/workflows/app-ci.yml'

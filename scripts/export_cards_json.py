@@ -58,11 +58,23 @@ def clean_for_tts(text: str) -> str:
     s = re.sub(r"\*([^*]+)\*", r"\1", s)
     s = re.sub(r"__([^_]+)__", r"\1", s)
     s = re.sub(r"_([^_]+)_", r"\1", s)
-    # Convert list bullets to sentences with commas or periods
+    # Remove markdown table separator lines like |---|---|
+    s = re.sub(r"^\|[-:\s|]+\|$", "", s, flags=re.MULTILINE)
+
+    # Convert list bullets and tables to natural sentences
     lines = []
     for line in s.splitlines():
         line = line.strip()
         if not line:
+            continue
+        # Table row: | cell1 | cell2 |
+        if line.startswith("|") and line.endswith("|"):
+            cells = [c.strip() for c in line.split("|") if c.strip()]
+            if cells:
+                content = ", ".join(cells)
+                if not content.endswith((".", "!", "?", ";", ":")):
+                    content += "."
+                lines.append(content)
             continue
         # Numbered list: "1. item" -> "1: item."
         m_num = re.match(r"^(\d+)\.\s+(.*)", line)

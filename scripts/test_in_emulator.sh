@@ -11,7 +11,17 @@ export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
 AVD_NAME="handsfree_test_avd"
 APK_PATH="$ROOT_DIR/app/build/app/outputs/flutter-apk/app-debug.apk"
 PKG_NAME="com.guettli.handsfree_anki"
-SCREENSHOT_PATH="$ROOT_DIR/app/emulator_screenshot.png"
+SCREENSHOT_PATH="$ROOT_DIR/app/build/emulator_screenshot.png"
+mkdir -p "$(dirname "$SCREENSHOT_PATH")"
+
+STARTED_OUR_EMULATOR=0
+cleanup() {
+    if [ "$STARTED_OUR_EMULATOR" = "1" ]; then
+        echo ">> Stopping headless emulator..."
+        adb emu kill >/dev/null 2>&1 || true
+    fi
+}
+trap cleanup EXIT
 
 echo "=== Hands-Free Flashcards: Android Emulator Test ==="
 
@@ -49,17 +59,24 @@ if [ -z "$DEVICE" ]; then
         -netdelay none \
         -netspeed full &
     EMU_PID=$!
+    STARTED_OUR_EMULATOR=1
     echo ">> Emulator started with PID $EMU_PID. Waiting for device..."
     adb wait-for-device
 
     echo ">> Waiting for Android OS to complete booting..."
+    BOOT_SUCCESS=0
     for i in {1..60}; do
         BOOT_DONE=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r' || true)
         if [ "$BOOT_DONE" = "1" ]; then
+            BOOT_SUCCESS=1
             break
         fi
         sleep 2
     done
+    if [ "$BOOT_SUCCESS" != "1" ]; then
+        echo "❌ ERROR: Android OS failed to boot within 120s!"
+        exit 1
+    fi
     echo "✓ Android OS boot completed."
 else
     echo "✓ Using currently running device: $DEVICE"

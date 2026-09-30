@@ -177,27 +177,27 @@ class StudySessionController extends ChangeNotifier {
 
   // --- STT Actions ---
 
+  bool _hasWord(String text, List<String> words) {
+    final pattern = '\\b(${words.map(RegExp.escape).join('|')})\\b';
+    return RegExp(pattern, caseSensitive: false).hasMatch(text);
+  }
+
   Future<void> _startListeningForReveal() async {
+    if (_isDisposed || _state == SessionState.paused) return;
     _state = SessionState.waitingForRevealVoice;
     _lastRecognizedText = '';
     notifyListeners();
 
     await _listenWithHandler((spoken) {
-      final text = spoken.toLowerCase();
-      if (text.contains('pause') || text.contains('stop')) {
+      if (_hasWord(spoken, ['pause', 'stop'])) {
         pause();
         return;
       }
-      if (text.contains('repeat') || text.contains('again')) {
+      if (_hasWord(spoken, ['repeat', 'again'])) {
         _speakQuestion();
         return;
       }
-      if (text.contains('next') ||
-          text.contains('ok') ||
-          text.contains('okay') ||
-          text.contains('show') ||
-          text.contains('answer') ||
-          text.contains('weiter')) {
+      if (_hasWord(spoken, ['next', 'ok', 'okay', 'show', 'answer', 'weiter', 'yes'])) {
         _stopListening();
         _speakAnswer();
       }
@@ -205,39 +205,28 @@ class StudySessionController extends ChangeNotifier {
   }
 
   Future<void> _startListeningForRating() async {
+    if (_isDisposed || _state == SessionState.paused) return;
     _state = SessionState.waitingForRatingVoice;
     _lastRecognizedText = '';
     notifyListeners();
 
     await _listenWithHandler((spoken) {
-      final text = spoken.toLowerCase();
-      if (text.contains('pause') || text.contains('stop')) {
+      if (_hasWord(spoken, ['pause', 'stop'])) {
         pause();
         return;
       }
-      if (text.contains('repeat')) {
+      if (_hasWord(spoken, ['repeat'])) {
         _speakAnswer();
         return;
       }
 
-      if (text.contains('simple') ||
-          text.contains('easy') ||
-          text.contains('einfach') ||
-          text.contains('good') ||
-          text.contains('gut')) {
+      if (_hasWord(spoken, ['simple', 'easy', 'einfach', 'good', 'gut'])) {
         _stopListening();
         _applyRatingAndProceed(ReviewRating.simple);
-      } else if (text.contains('medium') ||
-          text.contains('mittel') ||
-          text.contains('normal') ||
-          text.contains('fine')) {
+      } else if (_hasWord(spoken, ['medium', 'mittel', 'normal', 'fine'])) {
         _stopListening();
         _applyRatingAndProceed(ReviewRating.medium);
-      } else if (text.contains('hard') ||
-          text.contains('schwer') ||
-          text.contains('difficult') ||
-          text.contains('again') ||
-          text.contains('nochmal')) {
+      } else if (_hasWord(spoken, ['hard', 'schwer', 'difficult', 'again', 'nochmal'])) {
         _stopListening();
         _applyRatingAndProceed(ReviewRating.hard);
       }
@@ -283,68 +272,77 @@ class StudySessionController extends ChangeNotifier {
     _isListening = false;
   }
 
+  bool _isProcessingRating = false;
+
   void _onListeningStopped() {
-    // If the speech recognizer automatically stopped due to silence,
-    // automatically restart listening if we're still waiting for an answer or rating!
-    if (_state == SessionState.waitingForRevealVoice || _state == SessionState.waitingForRatingVoice) {
-      _listenTimeoutTimer?.cancel();
-      _listenTimeoutTimer = Timer(const Duration(milliseconds: 1200), () {
-        if (_isDisposed) return;
-        _consecutiveTimeouts++;
+    if (_isDisposed || _state == SessionState.paused) return;
+    if (_state != SessionState.waitingForRevealVoice && _state != SessionState.waitingForRatingVoice) return;
+
+    _listenTimeoutTimer?.cancel();
+    _listenTimeoutTimer = Timer(const Duration(milliseconds: 1200), () {
+      if (_isDisposed || _state == SessionState.paused) return;
+      _consecutiveTimeouts++;
+      if (_state == SessionState.waitingForRevealVoice) {
         if (_consecutiveTimeouts >= 3) {
-          // Play a reminder audio hint
           _consecutiveTimeouts = 0;
-          if (_state == SessionState.waitingForRevealVoice) {
-            _tts.speak("Say next or ok").then((_) => _startListeningForReveal());
-          } else {
-            _tts.speak("Say simple, medium, or hard").then((_) => _startListeningForRating());
-          }
+          _tts.speak("Say next or ok").then((_) => _startListeningForReveal());
         } else {
-          if (_state == SessionState.waitingForRevealVoice) {
-            _startListeningForReveal();
-          } else {
-            _startListeningForRating();
-          }
+          _startListeningForReveal();
         }
-      });
-    }
+      } else if (_state == SessionState.waitingForRatingVoice) {
+        if (_consecutiveTimeouts >= 3) {
+          _consecutiveTimeouts = 0;
+          _tts.speak("Say simple, medium, or hard").then((_) => _startListeningForRating());
+        } else {
+          _startListeningForRating();
+        }
+      }
+    });
   }
 
   Future<void> _applyRatingAndProceed(ReviewRating rating) async {
+    if (_isProcessingRating || _isDisposed) return;
     final card = currentCard;
     if (card == null) return;
 
+    _isProcessingRating = true;
     _stopListening();
 
-    // SM-2 calculation
-    final currentProgress = _progressMap[card.id] ??
-        CardProgress(
-          cardId: card.id,
-          deckSlug: card.deckSlug,
-        );
+    try {
+      // SM-2 calculation
+      final currentProgress = _progressMap[card.id] ??
+          CardProgress(
+            cardId: card.id,
+            deckSlug: card.deckSlug,
+          );
 
-    final updatedProgress = SrsService.calculateNextReview(
-      progress: currentProgress,
-      rating: rating,
-    );
+      final updatedProgress = SrsService.calculateNextReview(
+        progress: currentProgress,
+        rating: rating,
+      );
 
-    _progressMap[card.id] = updatedProgress;
-    await StorageService.saveProgress(deck.slug, _progressMap);
+      _progressMap[card.id] = updatedProgress;
+      await StorageService.saveProgress(deck.slug, _progressMap);
 
-    // If marked hard, we optionally re-queue it at the end of this session for practice
-    if (rating == ReviewRating.hard) {
-      cards.add(card);
-    }
+      // If marked hard, we optionally re-queue it at the end of this session for practice
+      if (rating == ReviewRating.hard) {
+        cards.add(card);
+      }
 
-    currentIndex++;
-    if (currentIndex < cards.length) {
-      // Short pause before reading next question
-      await Future.delayed(const Duration(milliseconds: 800));
-      _speakQuestion();
-    } else {
-      _state = SessionState.completed;
-      notifyListeners();
-      await _tts.speak("Study session completed. Well done!");
+      currentIndex++;
+      if (currentIndex < cards.length) {
+        // Short pause before reading next question
+        await Future.delayed(const Duration(milliseconds: 800));
+        if (!_isDisposed && _state != SessionState.paused) {
+          _speakQuestion();
+        }
+      } else {
+        _state = SessionState.completed;
+        notifyListeners();
+        await _tts.speak("Study session completed. Well done!");
+      }
+    } finally {
+      _isProcessingRating = false;
     }
   }
 
