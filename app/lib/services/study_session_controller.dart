@@ -121,11 +121,16 @@ class StudySessionController extends ChangeNotifier {
     }
   }
 
-  void repeat() {
-    if (_state == SessionState.waitingForRevealVoice || _state == SessionState.speakingQuestion) {
-      _speakQuestion();
-    } else if (_state == SessionState.waitingForRatingVoice || _state == SessionState.speakingAnswer) {
-      _speakAnswer();
+  Future<void> repeat() async {
+    if (_isDisposed) return;
+    if (_state == SessionState.paused) {
+      _state = SessionState.waitingForRevealVoice;
+    }
+
+    if (_state == SessionState.waitingForRatingVoice || _state == SessionState.speakingAnswer) {
+      await _speakAnswer();
+    } else {
+      await _speakQuestion();
     }
   }
 
@@ -148,7 +153,8 @@ class StudySessionController extends ChangeNotifier {
 
     _state = SessionState.speakingQuestion;
     _consecutiveTimeouts = 0;
-    _stopListening();
+    await _stopListening();
+    await _tts.stop();
     notifyListeners();
 
     await _tts.speak("Question: ${card.spokenQuestion}");
@@ -161,13 +167,15 @@ class StudySessionController extends ChangeNotifier {
 
     _state = SessionState.speakingAnswer;
     _consecutiveTimeouts = 0;
-    _stopListening();
+    await _stopListening();
+    await _tts.stop();
     notifyListeners();
 
     await _tts.speak("Answer: ${card.spokenAnswer}");
   }
 
   void _onTtsComplete() {
+    if (_isDisposed || _state == SessionState.paused) return;
     if (_state == SessionState.speakingQuestion) {
       _startListeningForReveal();
     } else if (_state == SessionState.speakingAnswer) {
@@ -175,11 +183,96 @@ class StudySessionController extends ChangeNotifier {
     }
   }
 
-  // --- STT Actions ---
+  // --- STT Keywords & Actions ---
 
-  bool _hasWord(String text, List<String> words) {
-    final pattern = '\\b(${words.map(RegExp.escape).join('|')})\\b';
-    return RegExp(pattern, caseSensitive: false).hasMatch(text);
+  static const List<String> repeatKeywords = [
+    'repeat',
+    'repeat that',
+    'repeat please',
+    'please repeat',
+    'again',
+    'once more',
+    'replay',
+    'wiederholen',
+    'wiederhole',
+    'wiederhol',
+    'nochmal',
+    'noch mal',
+  ];
+
+  static const List<String> repeatQuestionKeywords = [
+    'repeat question',
+    'question again',
+    'frage wiederholen',
+    'frage nochmal',
+  ];
+
+  static const List<String> repeatAnswerKeywords = [
+    'repeat answer',
+    'answer again',
+    'antwort wiederholen',
+    'antwort nochmal',
+  ];
+
+  static const List<String> revealKeywords = [
+    'next',
+    'ok',
+    'okay',
+    'show',
+    'show answer',
+    'answer',
+    'weiter',
+    'yes',
+    'ja',
+    'aufdecken',
+  ];
+
+  static const List<String> ratingSimpleKeywords = [
+    'simple',
+    'easy',
+    'einfach',
+    'good',
+    'gut',
+    'leicht',
+  ];
+
+  static const List<String> ratingMediumKeywords = [
+    'medium',
+    'mittel',
+    'normal',
+    'fine',
+    'geht so',
+  ];
+
+  static const List<String> ratingHardKeywords = [
+    'hard',
+    'schwer',
+    'difficult',
+    'schwierig',
+    'nicht gewusst',
+    'fail',
+  ];
+
+  static const List<String> pauseKeywords = [
+    'pause',
+    'stop',
+    'anhalten',
+    'stopp',
+  ];
+
+  static bool hasWord(String text, List<String> words) {
+    final lowerText = text.toLowerCase();
+    for (final word in words) {
+      final lowerWord = word.toLowerCase().trim();
+      if (lowerWord.isEmpty) continue;
+      // Match with non-alphanumeric boundaries to support English, German umlauts, and punctuation
+      final escaped = RegExp.escape(lowerWord);
+      final pattern = '(^|[^a-zA-Z0-9äöüßÄÖÜ])$escaped(\$|[^a-zA-Z0-9äöüßÄÖÜ])';
+      if (RegExp(pattern).hasMatch(lowerText)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   Future<void> _startListeningForReveal() async {
@@ -188,18 +281,20 @@ class StudySessionController extends ChangeNotifier {
     _lastRecognizedText = '';
     notifyListeners();
 
-    await _listenWithHandler((spoken) {
-      if (_hasWord(spoken, ['pause', 'stop'])) {
+    await _listenWithHandler((spoken) async {
+      if (_state != SessionState.waitingForRevealVoice) return;
+
+      if (hasWord(spoken, pauseKeywords)) {
         pause();
         return;
       }
-      if (_hasWord(spoken, ['repeat', 'again'])) {
-        _speakQuestion();
+      if (hasWord(spoken, repeatKeywords) || hasWord(spoken, repeatQuestionKeywords)) {
+        await repeat();
         return;
       }
-      if (_hasWord(spoken, ['next', 'ok', 'okay', 'show', 'answer', 'weiter', 'yes'])) {
-        _stopListening();
-        _speakAnswer();
+      if (hasWord(spoken, revealKeywords)) {
+        await _stopListening();
+        await _speakAnswer();
       }
     });
   }
@@ -210,46 +305,52 @@ class StudySessionController extends ChangeNotifier {
     _lastRecognizedText = '';
     notifyListeners();
 
-    await _listenWithHandler((spoken) {
-      if (_hasWord(spoken, ['pause', 'stop'])) {
+    await _listenWithHandler((spoken) async {
+      if (_state != SessionState.waitingForRatingVoice) return;
+
+      if (hasWord(spoken, pauseKeywords)) {
         pause();
         return;
       }
-      if (_hasWord(spoken, ['repeat'])) {
-        _speakAnswer();
+      if (hasWord(spoken, repeatQuestionKeywords)) {
+        await _speakQuestion();
+        return;
+      }
+      if (hasWord(spoken, repeatKeywords) || hasWord(spoken, repeatAnswerKeywords)) {
+        await repeat();
         return;
       }
 
-      if (_hasWord(spoken, ['simple', 'easy', 'einfach', 'good', 'gut'])) {
-        _stopListening();
-        _applyRatingAndProceed(ReviewRating.simple);
-      } else if (_hasWord(spoken, ['medium', 'mittel', 'normal', 'fine'])) {
-        _stopListening();
-        _applyRatingAndProceed(ReviewRating.medium);
-      } else if (_hasWord(spoken, ['hard', 'schwer', 'difficult', 'again', 'nochmal'])) {
-        _stopListening();
-        _applyRatingAndProceed(ReviewRating.hard);
+      if (hasWord(spoken, ratingSimpleKeywords)) {
+        await _stopListening();
+        await _applyRatingAndProceed(ReviewRating.simple);
+      } else if (hasWord(spoken, ratingMediumKeywords)) {
+        await _stopListening();
+        await _applyRatingAndProceed(ReviewRating.medium);
+      } else if (hasWord(spoken, ratingHardKeywords)) {
+        await _stopListening();
+        await _applyRatingAndProceed(ReviewRating.hard);
       }
     });
   }
 
-  Future<void> _listenWithHandler(Function(String) onResult) async {
+  Future<void> _listenWithHandler(Future<void> Function(String) onResult) async {
     if (!_speechInitialized) {
       debugPrint("Speech recognition not available");
       return;
     }
 
-    _stopListening();
+    await _stopListening();
 
     try {
       _isListening = true;
       notifyListeners();
 
       await _stt.listen(
-        onResult: (result) {
+        onResult: (result) async {
           _lastRecognizedText = result.recognizedWords;
           notifyListeners();
-          onResult(result.recognizedWords);
+          await onResult(result.recognizedWords);
         },
         listenOptions: stt.SpeechListenOptions(
           listenMode: stt.ListenMode.confirmation,
@@ -264,10 +365,12 @@ class StudySessionController extends ChangeNotifier {
     }
   }
 
-  void _stopListening() {
+  Future<void> _stopListening() async {
     _listenTimeoutTimer?.cancel();
     if (_stt.isListening) {
-      _stt.stop();
+      await _stt.stop();
+      // Brief pause to allow Android audio session to release microphone before TTS starts
+      await Future.delayed(const Duration(milliseconds: 150));
     }
     _isListening = false;
   }
