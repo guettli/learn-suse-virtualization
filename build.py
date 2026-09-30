@@ -194,6 +194,13 @@ def main() -> int:
     for slug in subjects:
         grand += build_deck(slug, DECKS[slug])
     print(f"Built {grand} cards across {len(subjects)} deck(s): {', '.join(subjects)}")
+
+    try:
+        from scripts.export_cards_json import export_decks
+        export_decks()
+    except Exception as e:
+        print(f"Note: cards.json export skipped ({e})", file=sys.stderr)
+
     return 0
 
 
