@@ -1,6 +1,7 @@
 # learn-suse-virtualization
 
 [![build-deck](https://github.com/guettli/learn-suse-virtualization/actions/workflows/build.yml/badge.svg)](https://github.com/guettli/learn-suse-virtualization/actions/workflows/build.yml)
+[![app-ci](https://github.com/guettli/learn-suse-virtualization/actions/workflows/app-ci.yml/badge.svg)](https://github.com/guettli/learn-suse-virtualization/actions/workflows/app-ci.yml)
 [![latest release](https://img.shields.io/github/v/release/guettli/learn-suse-virtualization)](https://github.com/guettli/learn-suse-virtualization/releases/latest)
 
 Open-source **Anki flashcards for learning the SUSE cloud-native stack** (and the VMware
@@ -32,6 +33,31 @@ in fields** on, and field mapping 1 → Front, 2 → Back, 3 → **Tags**.
 
 Re-importing an updated deck **updates** existing cards instead of duplicating them, because
 each card has a stable GUID derived from its question text.
+
+## Hands-Free Android App
+
+Learn hands-free while walking, commuting, cycling, or working out. The phone reads the question aloud via TTS, waits for your spoken response (**"OK"** or **"Next"**), reads the answer, and asks for your recall rating (**"Simple"**, **"Medium"**, or **"Hard"**) using standard Anki **SuperMemo-2 (SM-2)** spaced repetition.
+
+Runs in your pocket with the screen off via an Android Foreground Service.
+
+<p align="center">
+  <img src="app/emulator_screenshot.png" alt="Hands-Free Android App" width="300" />
+</p>
+
+### Get the Android APK
+
+- **Download APK from GitHub Actions:** Every push to `main` compiles the Android APK. Go to the **[Actions tab](../../actions)**, open the latest `app-ci` run, and download the `handsfree-anki-debug-apk` artifact.
+- **Build Locally:**
+  ```bash
+  mise install
+  cd app
+  flutter build apk
+  # -> app/build/app/outputs/flutter-apk/app-release.apk
+  ```
+- **Automated Emulator Test:**
+  ```bash
+  ./scripts/test_in_emulator.sh
+  ```
 
 ## Build it yourself
 
