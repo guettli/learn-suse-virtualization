@@ -55,6 +55,7 @@ class StudySessionController extends ChangeNotifier {
     await _tts.setSpeechRate(0.5);
     await _tts.setVolume(1.0);
     await _tts.setPitch(1.0);
+    await _tts.awaitSpeakCompletion(true);
 
     _tts.setCompletionHandler(() {
       if (_isDisposed) return;
@@ -141,6 +142,7 @@ class StudySessionController extends ChangeNotifier {
   // --- TTS Actions ---
 
   Future<void> _speakQuestion() async {
+    if (_isDisposed) return;
     final card = currentCard;
     if (card == null) return;
 
@@ -153,6 +155,7 @@ class StudySessionController extends ChangeNotifier {
   }
 
   Future<void> _speakAnswer() async {
+    if (_isDisposed) return;
     final card = currentCard;
     if (card == null) return;
 
