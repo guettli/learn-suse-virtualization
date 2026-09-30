@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../models/card_model.dart';
 import '../services/foreground_service.dart';
 import '../services/study_session_controller.dart';
@@ -37,10 +38,41 @@ class _StudyScreenState extends State<StudyScreen> {
   }
 
   Future<void> _startSession() async {
-    // Start Android foreground service to allow continuous listening with screen off
-    await ForegroundServiceManager.startSessionService(deckName: widget.deck.name);
-    await _controller.initialize();
-    await _controller.start();
+    try {
+      // 1. Request microphone permission for voice commands
+      final micStatus = await Permission.microphone.request();
+
+      // 2. Request notification permission (needed on Android 13+)
+      if (await Permission.notification.status.isDenied) {
+        await Permission.notification.request();
+      }
+
+      if (!mounted) return;
+
+      // 3. Start Android foreground service to allow continuous listening with screen off
+      if (micStatus.isGranted) {
+        await ForegroundServiceManager.startSessionService(deckName: widget.deck.name);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Microphone permission not granted. Use on-screen buttons to study.'),
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+
+      if (!mounted) return;
+
+      // 4. Initialize speech controller (TTS & STT)
+      await _controller.initialize();
+
+      if (!mounted) return;
+
+      // 5. Start speaking the first question
+      await _controller.start();
+    } catch (e, stack) {
+      debugPrint("Error in _startSession: $e\n$stack");
+    }
   }
 
   @override
