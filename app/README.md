@@ -62,6 +62,7 @@ Designed specifically to be used **on the go** (walking, cycling, commuting, exe
 When starting a study session, the app initiates an **Android Foreground Service** with `microphone` service type and a persistent notification (`Studying: SUSE Virtualization...`).
 - Holds a partial wake lock to prevent CPU sleep.
 - Keeps microphone recognition active even when the screen turns off or the phone is in your pocket.
+- **Audio Earcon / Listen Cue:** When TTS finishes speaking, the app plays a subtle, non-intrusive audio prompt beep through the headphones to signal that the microphone is active and ready for your voice command.
 - Stops cleanly when navigating back from the study session.
 
 ---

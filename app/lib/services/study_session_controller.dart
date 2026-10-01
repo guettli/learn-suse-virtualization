@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../models/card_model.dart';
+import 'audio_cue_service.dart';
 import 'srs_service.dart';
 import 'storage_service.dart';
 
@@ -345,6 +346,8 @@ class StudySessionController extends ChangeNotifier {
     try {
       _isListening = true;
       notifyListeners();
+
+      await AudioCueService.playListenCue();
 
       await _stt.listen(
         onResult: (result) async {
