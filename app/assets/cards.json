@@ -5,7 +5,7 @@
       "slug": "suse-virtualization",
       "name": "SUSE Virtualization",
       "description": "Harvester HCI, KubeVirt, Longhorn, VM lifecycle",
-      "total_cards": 253,
+      "total_cards": 261,
       "cards": [
         {
           "id": "b00f1c51eb31d053",
@@ -2283,6 +2283,78 @@
           "answer": "Because a claimed device is advertised as a **node-local extended resource**, requesting it makes the scheduler place the VMI **only on nodes exposing that resource**. A caveat: when identical devices exist on multiple nodes they can share a resource name, so you may need **\"run VM on a specific node\"** to guarantee the right host.",
           "spoken_question": "How does the scheduler ensure a VM lands on a node that actually has its device?",
           "spoken_answer": "Because a claimed device is advertised as a node-local extended resource, requesting it makes the scheduler place the VMI only on nodes exposing that resource. A caveat: when identical devices exist on multiple nodes they can share a resource name, so you may need \"run VM on a specific node\" to guarantee the right host."
+        },
+        {
+          "id": "688bae76fbda1e20",
+          "deck_slug": "suse-virtualization",
+          "tag": "edge-witness-nodes-guest-clusters",
+          "question": "How does a two-node SUSE Virtualization / Harvester cluster prevent split-brain during a network partition?",
+          "answer": "By deploying an **external Witness Node** (or third lightweight quorum participant). The witness joins the cluster solely to participate in **RKE2 etcd quorum and Kubernetes control plane consensus**; it does not host virtual machines or store Longhorn data replicas. This creates an **odd voter count (3 nodes)**, allowing a single host to safely survive partition without risk of split-brain or data corruption.",
+          "spoken_question": "How does a two-node SUSE Virtualization / Harvester cluster prevent split-brain during a network partition?",
+          "spoken_answer": "By deploying an external Witness Node (or third lightweight quorum participant). The witness joins the cluster solely to participate in RKE2 etcd quorum and Kubernetes control plane consensus; it does not host virtual machines or store Longhorn data replicas. This creates an odd voter count (3 nodes), allowing a single host to safely survive partition without risk of split-brain or data corruption."
+        },
+        {
+          "id": "5f6e10f9a6fe2165",
+          "deck_slug": "suse-virtualization",
+          "tag": "edge-witness-nodes-guest-clusters",
+          "question": "How do downstream Kubernetes clusters (guest clusters) consume storage from SUSE Virtualization?",
+          "answer": "Via the **Harvester CSI Driver** (`harvester-csi-driver`). When deployed inside an RKE2 or K3s guest cluster, it communicates with the underlying Harvester API to dynamically create **Harvester Virtual Disks (backed by Longhorn)** and attach them to the VM worker nodes as Kubernetes `PersistentVolumes`.",
+          "spoken_question": "How do downstream Kubernetes clusters (guest clusters) consume storage from SUSE Virtualization?",
+          "spoken_answer": "Via the Harvester CSI Driver (harvester-csi-driver). When deployed inside an RKE2 or K3s guest cluster, it communicates with the underlying Harvester API to dynamically create Harvester Virtual Disks (backed by Longhorn) and attach them to the VM worker nodes as Kubernetes PersistentVolumes."
+        },
+        {
+          "id": "243bac66f349f56d",
+          "deck_slug": "suse-virtualization",
+          "tag": "edge-witness-nodes-guest-clusters",
+          "question": "What components comprise the Harvester Cloud Provider integration for guest clusters?",
+          "answer": "Two complementary components:\n1. **Harvester Cloud Controller Manager (CCM)**: Manages node lifecycle, assigns node IP addresses, and orchestrates **LoadBalancer Service** allocation via Harvester's integrated VIP/IP pool.\n2. **Harvester CSI Driver**: Automates dynamic block volume provisioning and snapshots for guest workloads.",
+          "spoken_question": "What components comprise the Harvester Cloud Provider integration for guest clusters?",
+          "spoken_answer": "Two complementary components: 1: Harvester Cloud Controller Manager (CCM): Manages node lifecycle, assigns node IP addresses, and orchestrates LoadBalancer Service allocation via Harvester's integrated VIP/IP pool. 2: Harvester CSI Driver: Automates dynamic block volume provisioning and snapshots for guest workloads."
+        },
+        {
+          "id": "1ce64d13664dbd7b",
+          "deck_slug": "suse-virtualization",
+          "tag": "edge-witness-nodes-guest-clusters",
+          "question": "What are the prerequisites to run Windows 11 or Windows Server 2022 on SUSE Virtualization?",
+          "answer": "Windows 11 strictly mandates **UEFI boot with Secure Boot** and a **TPM 2.0 module**. In Harvester:\n- Set VM Boot Mode to **UEFI (with Secure Boot enabled)**.\n- Enable the **Virtual TPM (vTPM)** device, which runs an emulated `swtpm` daemon inside the virt-launcher pod to provide hardware-independent cryptographic storage.",
+          "spoken_question": "What are the prerequisites to run Windows 11 or Windows Server 2022 on SUSE Virtualization?",
+          "spoken_answer": "Windows 11 strictly mandates UEFI boot with Secure Boot and a TPM 2.0 module. In Harvester: Set VM Boot Mode to UEFI (with Secure Boot enabled). Enable the Virtual TPM (vTPM) device, which runs an emulated swtpm daemon inside the virt-launcher pod to provide hardware-independent cryptographic storage."
+        },
+        {
+          "id": "b418966e324a134e",
+          "deck_slug": "suse-virtualization",
+          "tag": "edge-witness-nodes-guest-clusters",
+          "question": "What is a VM Disruption Budget (`VMDisruptionBudget` / `VMDB`) in KubeVirt / Harvester?",
+          "answer": "Similar to Kubernetes Pod Disruption Budgets (`PDB`), a **`VMDB`** specifies the minimum number of VM instances that must remain operational during voluntary cluster maintenance (such as rolling node reboots or automated OS upgrades), ensuring services do not suffer simultaneous live migration or downtime.",
+          "spoken_question": "What is a VM Disruption Budget (VMDisruptionBudget / VMDB) in KubeVirt / Harvester?",
+          "spoken_answer": "Similar to Kubernetes Pod Disruption Budgets (PDB), a VMDB specifies the minimum number of VM instances that must remain operational during voluntary cluster maintenance (such as rolling node reboots or automated OS upgrades), ensuring services do not suffer simultaneous live migration or downtime."
+        },
+        {
+          "id": "3273c054777a2c0d",
+          "deck_slug": "suse-virtualization",
+          "tag": "edge-witness-nodes-guest-clusters",
+          "question": "How does CPU and Memory hotplug work in SUSE Virtualization?",
+          "answer": "KubeVirt allows adding vCPUs and RAM to a running VM without rebooting, provided the guest OS and VM template have **hotplug enabled**:\n- **CPU Hotplug**: Extra vCPU threads are hot-plugged into the guest through ACPI.\n- **Memory Hotplug**: Uses **virtio-mem** or ACPI memory ballooning to allocate extra memory pages to the guest on the fly.",
+          "spoken_question": "How does CPU and Memory hotplug work in SUSE Virtualization?",
+          "spoken_answer": "KubeVirt allows adding vCPUs and RAM to a running VM without rebooting, provided the guest OS and VM template have hotplug enabled: CPU Hotplug: Extra vCPU threads are hot-plugged into the guest through ACPI. Memory Hotplug: Uses virtio-mem or ACPI memory ballooning to allocate extra memory pages to the guest on the fly."
+        },
+        {
+          "id": "6172fb44c174c9e6",
+          "deck_slug": "suse-virtualization",
+          "tag": "edge-witness-nodes-guest-clusters",
+          "question": "How does Harvester provide layer-2 IP address assignment for VM Load Balancers?",
+          "answer": "Through the integrated **Harvester Load Balancer (kube-vip / IPAM pool)**. Administrators define an **IP Pool** on a VLAN network; when a LoadBalancer service is requested (in Harvester or a guest cluster), an IP from this pool is reserved and advertised across the VLAN via **gratuitous ARP (GARP)** or BGP.",
+          "spoken_question": "How does Harvester provide layer-2 IP address assignment for VM Load Balancers?",
+          "spoken_answer": "Through the integrated Harvester Load Balancer (kube-vip / IPAM pool). Administrators define an IP Pool on a VLAN network; when a LoadBalancer service is requested (in Harvester or a guest cluster), an IP from this pool is reserved and advertised across the VLAN via gratuitous ARP (GARP) or BGP."
+        },
+        {
+          "id": "eb9a51139999e954",
+          "deck_slug": "suse-virtualization",
+          "tag": "edge-witness-nodes-guest-clusters",
+          "question": "What is the difference between NoCloud and ConfigDrive cloud-init data sources in VM images?",
+          "answer": "- **NoCloud**: Injects cloud-init configuration via a simulated ISO or FAT filesystem labeled `cidata`. It is the default for KubeVirt and Harvester and works universally across modern Linux cloud images.\n- **ConfigDrive**: Injects configuration labeled `config-2`, typically used in OpenStack environments. Both inject `user-data` and `network-config` without requiring external network connectivity.",
+          "spoken_question": "What is the difference between NoCloud and ConfigDrive cloud-init data sources in VM images?",
+          "spoken_answer": "NoCloud: Injects cloud-init configuration via a simulated ISO or FAT filesystem labeled cidata. It is the default for KubeVirt and Harvester and works universally across modern Linux cloud images. ConfigDrive: Injects configuration labeled config-2, typically used in OpenStack environments. Both inject user-data and network-config without requiring external network connectivity."
         }
       ]
     },
@@ -2290,7 +2362,7 @@
       "slug": "rancher",
       "name": "Rancher",
       "description": "Multi-cluster management, Fleet, RKE2/K3s, NeuVector",
-      "total_cards": 166,
+      "total_cards": 172,
       "cards": [
         {
           "id": "e50db0d1ad576b1c",
@@ -3785,6 +3857,60 @@
           "answer": "Pull the management logs with `kubectl -n cattle-system logs -l app=rancher` (leader pod is most useful), plus **cattle-cluster-agent** logs in the affected downstream cluster. For deep diagnostics use Rancher's **support-tools** collector (`rancherlabs/support-tools`, the `rancher2_logs_collector.sh` script) or **`rancher/support-bundle-kit`**, and gather RKE2/K3s server logs (`journalctl -u rke2-server`) on the local cluster nodes.",
           "spoken_question": "How do you collect logs for a Rancher problem?",
           "spoken_answer": "Pull the management logs with kubectl -n cattle-system logs -l app=rancher (leader pod is most useful), plus cattle-cluster-agent logs in the affected downstream cluster. For deep diagnostics use Rancher's support-tools collector (rancherlabs/support-tools, the rancher2logscollector.sh script) or rancher/support-bundle-kit, and gather RKE2/K3s server logs (journalctl -u rke2-server) on the local cluster nodes."
+        },
+        {
+          "id": "b79120175d6d0346",
+          "deck_slug": "rancher",
+          "tag": "rancher-prime-cluster-api-dual-stack-networking",
+          "question": "What is Rancher Prime and how is registration validated?",
+          "answer": "**Rancher Prime** is the enterprise distribution of Rancher with certified container images, SLA-backed commercial support, and access to the **Prime Registry (`registry.rancher.com`)**. Registration is activated by connecting the management server to the **SUSE Customer Center (SCC)** or entering an offline entitlement key for air-gapped deployments.",
+          "spoken_question": "What is Rancher Prime and how is registration validated?",
+          "spoken_answer": "Rancher Prime is the enterprise distribution of Rancher with certified container images, SLA-backed commercial support, and access to the Prime Registry (registry.rancher.com). Registration is activated by connecting the management server to the SUSE Customer Center (SCC) or entering an offline entitlement key for air-gapped deployments."
+        },
+        {
+          "id": "5de8af38967ce541",
+          "deck_slug": "rancher",
+          "tag": "rancher-prime-cluster-api-dual-stack-networking",
+          "question": "How does Rancher utilize Cluster API (CAPI) under the hood for provisioning?",
+          "answer": "Rancher's v2 provisioning engine is built on **upstream Kubernetes Cluster API (CAPI)**. Rancher defines custom CAPI providers:\n- **CAPR (Cluster API Provider Rancher)**: Orchestrates RKE2/K3s control plane and worker initialization.\n- **Node Driver Infrastructure Providers** (e.g., Harvester, AWS, vSphere): Manage machine VM lifecycle and OS bootstrapping via cloud-init.",
+          "spoken_question": "How does Rancher utilize Cluster API (CAPI) under the hood for provisioning?",
+          "spoken_answer": "Rancher's v2 provisioning engine is built on upstream Kubernetes Cluster API (CAPI). Rancher defines custom CAPI providers: CAPR (Cluster API Provider Rancher): Orchestrates RKE2/K3s control plane and worker initialization. Node Driver Infrastructure Providers (e.g., Harvester, AWS, vSphere): Manage machine VM lifecycle and OS bootstrapping via cloud-init."
+        },
+        {
+          "id": "9cd7c10c3899bba9",
+          "deck_slug": "rancher",
+          "tag": "rancher-prime-cluster-api-dual-stack-networking",
+          "question": "What are the requirements for Dual-Stack (IPv4/IPv6) networking in Rancher-provisioned RKE2 clusters?",
+          "answer": "1. Dual-Stack must be enabled during cluster provisioning in the **Cluster Configuration → Advanced Networking** section.\n2. Both an **IPv4 and an IPv6 CIDR** must be specified for **Cluster Pod CIDR** and **Service CIDR**.\n3. The underlying CNI plugin must support dual-stack (such as **Canal with Cilium/Calico** or pure **Cilium**).\n4. All host nodes must have routable IPv4 and IPv6 addresses configured on their primary network interfaces.",
+          "spoken_question": "What are the requirements for Dual-Stack (IPv4/IPv6) networking in Rancher-provisioned RKE2 clusters?",
+          "spoken_answer": "1: Dual-Stack must be enabled during cluster provisioning in the Cluster Configuration → Advanced Networking section. 2: Both an IPv4 and an IPv6 CIDR must be specified for Cluster Pod CIDR and Service CIDR. 3: The underlying CNI plugin must support dual-stack (such as Canal with Cilium/Calico or pure Cilium). 4: All host nodes must have routable IPv4 and IPv6 addresses configured on their primary network interfaces."
+        },
+        {
+          "id": "7c9f9a291a71bc81",
+          "deck_slug": "rancher",
+          "tag": "rancher-prime-cluster-api-dual-stack-networking",
+          "question": "What are the three recovery modes supported by the Rancher Backup Operator during a restore?",
+          "answer": "1. **Restore to Existing Cluster**: Replaces resources in an existing live management cluster.\n2. **Migration to New Cluster**: Deploys Rancher configuration and managed cluster states onto a fresh Kubernetes cluster.\n3. **Disaster Recovery with Cert Rotation**: Restores backup state while rotating expired or changed TLS certificates and updating hostnames.",
+          "spoken_question": "What are the three recovery modes supported by the Rancher Backup Operator during a restore?",
+          "spoken_answer": "1: Restore to Existing Cluster: Replaces resources in an existing live management cluster. 2: Migration to New Cluster: Deploys Rancher configuration and managed cluster states onto a fresh Kubernetes cluster. 3: Disaster Recovery with Cert Rotation: Restores backup state while rotating expired or changed TLS certificates and updating hostnames."
+        },
+        {
+          "id": "bea03984319dec78",
+          "deck_slug": "rancher",
+          "tag": "rancher-prime-cluster-api-dual-stack-networking",
+          "question": "How do Fleet Workspaces provide multi-tenant GitOps isolation?",
+          "answer": "Fleet organizes Git repositories and cluster targets into **Workspaces** (Kubernetes namespaces labeled for Fleet). Clusters and GitRepos in one workspace cannot deploy to or see clusters in another workspace, allowing distinct teams or environments (e.g. `dev`, `staging`, `prod`) to operate independently without overlapping privileges.",
+          "spoken_question": "How do Fleet Workspaces provide multi-tenant GitOps isolation?",
+          "spoken_answer": "Fleet organizes Git repositories and cluster targets into Workspaces (Kubernetes namespaces labeled for Fleet). Clusters and GitRepos in one workspace cannot deploy to or see clusters in another workspace, allowing distinct teams or environments (e.g. dev, staging, prod) to operate independently without overlapping privileges."
+        },
+        {
+          "id": "7b93204a6499b517",
+          "deck_slug": "rancher",
+          "tag": "rancher-prime-cluster-api-dual-stack-networking",
+          "question": "How does Fleet match Git repositories to target clusters?",
+          "answer": "Using **Cluster Selectors and Target Labels**. In the `fleet.yaml` manifest, administrators specify `targets` with `clusterSelector.matchLabels` (e.g. `env: production`, `location: edge`). Fleet evaluates cluster inventory labels and automatically fans out deployment bundles to all matching clusters.",
+          "spoken_question": "How does Fleet match Git repositories to target clusters?",
+          "spoken_answer": "Using Cluster Selectors and Target Labels. In the fleet.yaml manifest, administrators specify targets with clusterSelector.matchLabels (e.g. env: production, location: edge). Fleet evaluates cluster inventory labels and automatically fans out deployment bundles to all matching clusters."
         }
       ]
     },
@@ -3792,7 +3918,7 @@
       "slug": "vmware",
       "name": "VMware",
       "description": "vSphere terminology, ESXi, vCenter, DRS/HA, vMotion",
-      "total_cards": 233,
+      "total_cards": 238,
       "cards": [
         {
           "id": "5c2bfe72f4846aa2",
@@ -5890,6 +6016,51 @@
           "answer": "An **inventory/assessment**; a **pilot** of non-critical VMs first; realistic **cold-downtime** budgets per VM (copy + convert time scales with disk size); **validation** that each VM boots, networks, and passes app tests before cutover; and keeping the source VM **powered off but not deleted** as a rollback until validated.",
           "spoken_question": "What should a phased vSphere-to-SUSE migration plan include?",
           "spoken_answer": "An inventory/assessment; a pilot of non-critical VMs first; realistic cold-downtime budgets per VM (copy + convert time scales with disk size); validation that each VM boots, networks, and passes app tests before cutover; and keeping the source VM powered off but not deleted as a rollback until validated."
+        },
+        {
+          "id": "8655c1f613c1f0a4",
+          "deck_slug": "vmware",
+          "tag": "modern-vsphere-8-dpus-tanzu",
+          "question": "What is the vSphere Distributed Services Engine (Project Monterey)?",
+          "answer": "An architecture in vSphere 8 that offloads core hypervisor and infrastructure services (such as **NSX virtual networking, distributed firewalls, and storage filters**) directly onto **Data Processing Units (DPUs / SmartNICs)** equipped with ARM processors, freeing host x86 CPU cores for application VM workloads.",
+          "spoken_question": "What is the vSphere Distributed Services Engine (Project Monterey)?",
+          "spoken_answer": "An architecture in vSphere 8 that offloads core hypervisor and infrastructure services (such as NSX virtual networking, distributed firewalls, and storage filters) directly onto Data Processing Units (DPUs / SmartNICs) equipped with ARM processors, freeing host x86 CPU cores for application VM workloads."
+        },
+        {
+          "id": "478c798a7c806eb1",
+          "deck_slug": "vmware",
+          "tag": "modern-vsphere-8-dpus-tanzu",
+          "question": "What is a Supervisor Cluster in vSphere with Tanzu?",
+          "answer": "A vSphere cluster where ESXi hosts are configured as Kubernetes worker nodes using a native in-kernel agent called the **Spherelet**. Administrators and developers interact with standard Kubernetes API endpoints to provision native Pod VMs, Tanzu Kubernetes clusters, and storage volumes directly within vCenter.",
+          "spoken_question": "What is a Supervisor Cluster in vSphere with Tanzu?",
+          "spoken_answer": "A vSphere cluster where ESXi hosts are configured as Kubernetes worker nodes using a native in-kernel agent called the Spherelet. Administrators and developers interact with standard Kubernetes API endpoints to provision native Pod VMs, Tanzu Kubernetes clusters, and storage volumes directly within vCenter."
+        },
+        {
+          "id": "4fe2517b15ab01c3",
+          "deck_slug": "vmware",
+          "tag": "modern-vsphere-8-dpus-tanzu",
+          "question": "What is the role of ClusterClass in Tanzu Kubernetes Grid (TKG 2.x)?",
+          "answer": "A **ClusterClass** is a declarative Cluster API (CAPI) blueprint that standardizes the topology, operating system, CNI, storage, and cloud-init definitions for Kubernetes guest clusters. Creating a new cluster simply references the `ClusterClass` and overrides specific variables (such as worker count or VM size).",
+          "spoken_question": "What is the role of ClusterClass in Tanzu Kubernetes Grid (TKG 2.x)?",
+          "spoken_answer": "A ClusterClass is a declarative Cluster API (CAPI) blueprint that standardizes the topology, operating system, CNI, storage, and cloud-init definitions for Kubernetes guest clusters. Creating a new cluster simply references the ClusterClass and overrides specific variables (such as worker count or VM size)."
+        },
+        {
+          "id": "857aba41dddd4208",
+          "deck_slug": "vmware",
+          "tag": "modern-vsphere-8-dpus-tanzu",
+          "question": "How does vSphere Native Key Provider (NKP) differ from external Key Management Servers (KMS)?",
+          "answer": "- **External KMS**: Relies on an external KMIP-compliant server cluster to generate and store encryption keys for vSAN and VM encryption.\n- **Native Key Provider (NKP)**: Built directly into vCenter without external third-party appliances; vCenter generates the primary encryption keys and distributes them to ESXi hosts, enabling **vTPM 2.0 and VM encryption** with zero additional licensing or infrastructure.",
+          "spoken_question": "How does vSphere Native Key Provider (NKP) differ from external Key Management Servers (KMS)?",
+          "spoken_answer": "External KMS: Relies on an external KMIP-compliant server cluster to generate and store encryption keys for vSAN and VM encryption. Native Key Provider (NKP): Built directly into vCenter without external third-party appliances; vCenter generates the primary encryption keys and distributes them to ESXi hosts, enabling vTPM 2.0 and VM encryption with zero additional licensing or infrastructure."
+        },
+        {
+          "id": "c156415a997d96a7",
+          "deck_slug": "vmware",
+          "tag": "modern-vsphere-8-dpus-tanzu",
+          "question": "How does vSAN Erasure Coding (RAID-5/6) optimize storage efficiency compared to RAID-1 mirroring?",
+          "answer": "- **RAID-1 Mirroring**: Requires 200% storage capacity (`1 / FTT+1`) — storing 100 GB consumes 200 GB.\n- **RAID-5 Erasure Coding (3+1)**: Tolerates 1 failure (`FTT=1`) with only **1.33x capacity overhead** (100 GB consumes 133 GB), requiring a minimum of 4 hosts.\n- **RAID-6 Erasure Coding (4+2)**: Tolerates 2 failures (`FTT=2`) with **1.5x capacity overhead** (100 GB consumes 150 GB), requiring a minimum of 6 hosts.",
+          "spoken_question": "How does vSAN Erasure Coding (RAID-5/6) optimize storage efficiency compared to RAID-1 mirroring?",
+          "spoken_answer": "RAID-1 Mirroring: Requires 200% storage capacity (1 / FTT+1) — storing 100 GB consumes 200 GB. RAID-5 Erasure Coding (3+1): Tolerates 1 failure (FTT=1) with only 1.33x capacity overhead (100 GB consumes 133 GB), requiring a minimum of 4 hosts. RAID-6 Erasure Coding (4+2): Tolerates 2 failures (FTT=2) with 1.5x capacity overhead (100 GB consumes 150 GB), requiring a minimum of 6 hosts."
         }
       ]
     }
