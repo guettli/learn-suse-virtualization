@@ -66,6 +66,20 @@ When starting a study session, the app initiates an **Android Foreground Service
 
 ---
 
+## Headset / Bluetooth Button Controls
+
+When your phone is in your pocket or screen is off, you can also control the study session using your wired or Bluetooth headphone buttons (or smartwatch media controls):
+
+| Headset Button / Gesture | During Question Phase | During Answer Phase | During Speech |
+|---|---|---|---|
+| **Play / Pause** (Single click / tap) | Reveals answer | Repeats answer audio | Pauses / Resumes session |
+| **Next Track** (Double tap on earbuds / Next button) | Reveals answer | Rates as **Simple** (advances) | - |
+| **Previous Track** (Triple tap on earbuds / Prev button) | Repeats question audio | Repeats answer audio | - |
+
+> **Note:** Bluetooth earbuds (AirPods, Galaxy Buds, Sony, etc.) translate double/triple taps into native Next/Previous track events. Single-button wired headsets emit Play/Pause on single click. Devices with dedicated Next/Previous hardware buttons or smartwatch media controls are also fully supported.
+
+---
+
 ## Spaced Repetition (SM-2)
 
 The app implements the standard SuperMemo-2 (SM-2) algorithm used by Anki:
