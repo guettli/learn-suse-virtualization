@@ -49,10 +49,13 @@ class SettingsService {
   static Future<AppSettings> loadSettings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final speechRate = prefs.getDouble(_keySpeechRate) ?? defaultSettings.speechRate;
-      final volume = prefs.getDouble(_keyVolume) ?? defaultSettings.volume;
-      final pitch = prefs.getDouble(_keyPitch) ?? defaultSettings.pitch;
-      final language = prefs.getString(_keyLanguage) ?? defaultSettings.language;
+      final speechRate = (prefs.getDouble(_keySpeechRate) ?? defaultSettings.speechRate).clamp(0.2, 1.0);
+      final volume = (prefs.getDouble(_keyVolume) ?? defaultSettings.volume).clamp(0.1, 1.0);
+      final pitch = (prefs.getDouble(_keyPitch) ?? defaultSettings.pitch).clamp(0.5, 1.5);
+      final rawLanguage = prefs.getString(_keyLanguage) ?? defaultSettings.language;
+      final language = const ['en-US', 'en-GB', 'de-DE'].contains(rawLanguage)
+          ? rawLanguage
+          : defaultSettings.language;
       final audioCueEnabled = prefs.getBool(_keyAudioCue) ?? defaultSettings.audioCueEnabled;
 
       AudioCueService.isEnabled = audioCueEnabled;
