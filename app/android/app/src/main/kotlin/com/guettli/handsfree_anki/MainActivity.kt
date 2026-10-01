@@ -3,6 +3,8 @@ package com.guettli.handsfree_anki
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Intent
+import android.media.AudioManager
+import android.media.ToneGenerator
 import android.media.session.MediaSession
 import android.media.session.PlaybackState
 import android.os.Build
@@ -15,6 +17,8 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity: FlutterActivity() {
     private var mediaChannel: MethodChannel? = null
     private var mediaSession: MediaSession? = null
+    private var audioCueChannel: MethodChannel? = null
+    private var toneGenerator: ToneGenerator? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +37,17 @@ class MainActivity: FlutterActivity() {
                     }
                     "stopMediaSession" -> {
                         releaseMediaSession()
+                        result.success(true)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+        }
+        audioCueChannel = MethodChannel(messenger, "com.guettli.handsfree_anki/audio_cue").apply {
+            setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "playListenCue" -> {
+                        playListenCue()
                         result.success(true)
                     }
                     else -> result.notImplemented()
@@ -148,16 +163,43 @@ class MainActivity: FlutterActivity() {
         return super.onKeyDown(keyCode, event)
     }
 
+    private fun playListenCue() {
+        try {
+            if (toneGenerator == null) {
+                toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 70)
+            }
+            toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, 120)
+        } catch (e: Exception) {
+            // Audio cue is best-effort feedback; reset generator if error occurs
+            releaseToneGenerator()
+        }
+    }
+
+    private fun releaseToneGenerator() {
+        try {
+            toneGenerator?.release()
+        } catch (e: Exception) {
+            // ignore
+        }
+        toneGenerator = null
+    }
+
     override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
         super.cleanUpFlutterEngine(flutterEngine)
         mediaChannel?.setMethodCallHandler(null)
         mediaChannel = null
+        audioCueChannel?.setMethodCallHandler(null)
+        audioCueChannel = null
+        releaseToneGenerator()
     }
 
     override fun onDestroy() {
         mediaChannel?.setMethodCallHandler(null)
         mediaChannel = null
+        audioCueChannel?.setMethodCallHandler(null)
+        audioCueChannel = null
         releaseMediaSession()
+        releaseToneGenerator()
         super.onDestroy()
     }
 
