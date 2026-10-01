@@ -348,6 +348,7 @@ class StudySessionController extends ChangeNotifier {
       notifyListeners();
 
       await AudioCueService.playListenCue();
+      if (_isDisposed || _state == SessionState.paused) return;
 
       await _stt.listen(
         onResult: (result) async {

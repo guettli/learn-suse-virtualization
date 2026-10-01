@@ -170,7 +170,8 @@ class MainActivity: FlutterActivity() {
             }
             toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, 120)
         } catch (e: Exception) {
-            // Audio cue is best-effort feedback
+            // Audio cue is best-effort feedback; reset generator if error occurs
+            releaseToneGenerator()
         }
     }
 
