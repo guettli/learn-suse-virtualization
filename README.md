@@ -53,7 +53,7 @@ Runs in your pocket with the screen off via an Android Foreground Service.
   mise install
   cd app
   flutter build apk --release
-  # -> app/build/app/outputs/flutter-apk/handsfree-anki.apk
+  # -> build/app/outputs/flutter-apk/app-release.apk
   ```
 - **Automated Emulator Test:**
   ```bash
