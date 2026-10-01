@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/card_model.dart';
 import '../services/deck_repository.dart';
+import 'settings_screen.dart';
 import 'study_screen.dart';
 
 class DeckSelectionScreen extends StatefulWidget {
@@ -33,6 +34,14 @@ class _DeckSelectionScreenState extends State<DeckSelectionScreen> {
       appBar: AppBar(
         title: const Text('Hands-Free Flashcards'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: 'Voice & Audio Settings',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SettingsScreen()),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.help_outline),
             tooltip: 'Voice Commands Help',

@@ -81,6 +81,17 @@ When your phone is in your pocket or screen is off, you can also control the stu
 
 ---
 
+## Voice & Audio Settings
+
+Tap the **Settings** gear icon on the home screen to customize:
+- **Speech Rate:** Adjust reading speed from 0.4x to 2.0x.
+- **Speech Volume & Pitch:** Fine-tune audio clarity and tone.
+- **Language & Accent:** Select English (US), English (UK), or German (DE).
+- **Listen Mode Cue (Beep):** Toggle the prompt earcon chime on or off.
+- **Instant Voice Preview:** Test speech settings with one tap.
+
+---
+
 ## Spaced Repetition (SM-2)
 
 The app implements the standard SuperMemo-2 (SM-2) algorithm used by Anki:
