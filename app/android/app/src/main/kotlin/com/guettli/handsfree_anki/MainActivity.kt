@@ -52,7 +52,7 @@ class MainActivity: FlutterActivity() {
                         @Suppress("DEPRECATION")
                         mediaButtonIntent.getParcelableExtra(Intent.EXTRA_KEY_EVENT)
                     }
-                    if (event != null && event.action == KeyEvent.ACTION_DOWN) {
+                    if (event != null && event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) {
                         when (event.keyCode) {
                             KeyEvent.KEYCODE_HEADSETHOOK,
                             KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,
@@ -124,7 +124,7 @@ class MainActivity: FlutterActivity() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (event?.action == KeyEvent.ACTION_DOWN) {
+        if (event?.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) {
             when (keyCode) {
                 KeyEvent.KEYCODE_HEADSETHOOK,
                 KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,
@@ -148,7 +148,15 @@ class MainActivity: FlutterActivity() {
         return super.onKeyDown(keyCode, event)
     }
 
+    override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
+        super.cleanUpFlutterEngine(flutterEngine)
+        mediaChannel?.setMethodCallHandler(null)
+        mediaChannel = null
+    }
+
     override fun onDestroy() {
+        mediaChannel?.setMethodCallHandler(null)
+        mediaChannel = null
         releaseMediaSession()
         super.onDestroy()
     }

@@ -43,6 +43,10 @@ class _StudyScreenState extends State<StudyScreen> {
 
   void _handleHeadsetAction(HeadsetAction action) {
     if (!mounted) return;
+    if (_controller.state == SessionState.completed ||
+        _controller.state == SessionState.initial) {
+      return;
+    }
     switch (action) {
       case HeadsetAction.playPause:
         if (_controller.state == SessionState.waitingForRevealVoice) {
