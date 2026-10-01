@@ -4,6 +4,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../models/card_model.dart';
 import 'audio_cue_service.dart';
+import 'settings_service.dart';
 import 'srs_service.dart';
 import 'storage_service.dart';
 
@@ -51,11 +52,12 @@ class StudySessionController extends ChangeNotifier {
   Future<void> initialize() async {
     _progressMap = await StorageService.loadProgress(deck.slug);
 
-    // Initialize TTS
-    await _tts.setLanguage("en-US");
-    await _tts.setSpeechRate(0.5);
-    await _tts.setVolume(1.0);
-    await _tts.setPitch(1.0);
+    // Initialize TTS with user preferences
+    final settings = await SettingsService.loadSettings();
+    await _tts.setLanguage(settings.language);
+    await _tts.setSpeechRate(settings.speechRate);
+    await _tts.setVolume(settings.volume);
+    await _tts.setPitch(settings.pitch);
     await _tts.awaitSpeakCompletion(true);
 
     _tts.setCompletionHandler(() {
