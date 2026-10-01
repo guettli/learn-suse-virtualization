@@ -3,6 +3,8 @@ name: app-ci
 on:
   push:
     branches: [main]
+    tags:
+      - 'v*'
     paths:
       - 'cards/**'
       - 'app/**'
@@ -15,10 +17,19 @@ on:
       - 'scripts/**'
       - '.github/workflows/app-ci.yml'
   workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Publish GitHub Release'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
 
 jobs:
   test-and-build:
-    name: Flutter Test & Build APK
+    name: Flutter Test & Build Release APK
     runs-on: ubuntu-latest
 
     defaults:
@@ -70,13 +81,28 @@ jobs:
       - name: Run tests
         run: flutter test
 
-      # 7. Build Android Debug APK
-      - name: Build Android Debug APK
-        run: flutter build apk --debug
+      # 7. Build Android Release APK
+      - name: Build Android Release APK
+        run: |
+          flutter build apk --release
+          cp build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/handsfree-anki.apk
 
       # 8. Upload built APK as workflow artifact
-      - name: Upload Debug APK
+      - name: Upload Release APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: handsfree-anki-debug-apk
-          path: app/build/app/outputs/flutter-apk/app-debug.apk
+          name: handsfree-anki-release-apk
+          path: app/build/app/outputs/flutter-apk/handsfree-anki.apk
+
+      # 9. Create GitHub Release and attach APK when triggered by tag or manual dispatch
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.create_release == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            app/build/app/outputs/flutter-apk/handsfree-anki.apk
+            app/build/app/outputs/flutter-apk/app-release.apk
+          name: Release ${{ github.ref_name }}
+          generate_release_notes: true
+          draft: false
+          prerelease: false

@@ -46,13 +46,14 @@ Runs in your pocket with the screen off via an Android Foreground Service.
 
 ### Get the Android APK
 
-- **Download APK from GitHub Actions:** Every push to `main` compiles the Android APK. Go to the **[Actions tab](https://github.com/guettli/learn-suse-virtualization/actions)**, open the latest `app-ci` run, and download the `handsfree-anki-debug-apk` artifact.
+- **Direct Download from GitHub Releases:** Download the ready-to-install `handsfree-anki.apk` directly from the **[Latest Release](https://github.com/guettli/learn-suse-virtualization/releases/latest)**.
+- **Download from GitHub Actions:** CI also builds an APK artifact on every push under the **[Actions tab](https://github.com/guettli/learn-suse-virtualization/actions)**.
 - **Build Locally:**
   ```bash
   mise install
   cd app
-  flutter build apk
-  # -> app/build/app/outputs/flutter-apk/app-release.apk
+  flutter build apk --release
+  # -> app/build/app/outputs/flutter-apk/handsfree-anki.apk
   ```
 - **Automated Emulator Test:**
   ```bash
