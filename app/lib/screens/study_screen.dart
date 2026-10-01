@@ -3,6 +3,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../models/card_model.dart';
 import '../services/foreground_service.dart';
+import '../services/headset_service.dart';
 import '../services/study_session_controller.dart';
 
 class StudyScreen extends StatefulWidget {
@@ -34,7 +35,37 @@ class _StudyScreenState extends State<StudyScreen> {
       if (mounted) setState(() {});
     });
 
+    HeadsetService.initialize(onAction: _handleHeadsetAction);
+    HeadsetService.startSession();
+
     _startSession();
+  }
+
+  void _handleHeadsetAction(HeadsetAction action) {
+    if (!mounted) return;
+    switch (action) {
+      case HeadsetAction.playPause:
+        if (_controller.state == SessionState.waitingForRevealVoice) {
+          _controller.manualRevealAnswer();
+        } else if (_controller.state == SessionState.waitingForRatingVoice) {
+          _controller.repeat();
+        } else if (_controller.state == SessionState.paused) {
+          _controller.resume();
+        } else {
+          _controller.pause();
+        }
+        break;
+      case HeadsetAction.next:
+        if (_controller.state == SessionState.waitingForRevealVoice) {
+          _controller.manualRevealAnswer();
+        } else if (_controller.state == SessionState.waitingForRatingVoice) {
+          _controller.manualSubmitRating(ReviewRating.simple);
+        }
+        break;
+      case HeadsetAction.previous:
+        _controller.repeat();
+        break;
+    }
   }
 
   Future<void> _startSession() async {
@@ -77,6 +108,7 @@ class _StudyScreenState extends State<StudyScreen> {
 
   @override
   void dispose() {
+    HeadsetService.dispose();
     ForegroundServiceManager.stopSessionService();
     _controller.dispose();
     super.dispose();

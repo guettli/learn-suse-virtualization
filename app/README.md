@@ -66,6 +66,18 @@ When starting a study session, the app initiates an **Android Foreground Service
 
 ---
 
+## Headset / Bluetooth Button Controls
+
+When your phone is in your pocket or screen is off, you can also control the study session using your wired or Bluetooth headphone buttons (or smartwatch media controls):
+
+| Headset Button | During Question Phase | During Answer Phase | During Speech |
+|---|---|---|---|
+| **Play / Pause** (Single click) | Reveals answer | Repeats answer audio | Pauses / Resumes session |
+| **Next Track** (Double click) | Reveals answer | Rates as **Simple** (advances) | - |
+| **Previous Track** (Triple click) | Repeats question audio | Repeats answer audio | - |
+
+---
+
 ## Spaced Repetition (SM-2)
 
 The app implements the standard SuperMemo-2 (SM-2) algorithm used by Anki:
