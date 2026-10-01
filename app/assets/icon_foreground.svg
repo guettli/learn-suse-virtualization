@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f0fdf4"/>
+    </linearGradient>
+    <linearGradient id="suseGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#30ba78"/>
+      <stop offset="100%" stop-color="#24965e"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Scale slightly down to fit inside adaptive icon 72dp safe zone -->
+  <g transform="translate(25.6, 25.6) scale(0.9)">
+    <!-- Back Flashcard (Rotated) -->
+    <rect x="120" y="100" width="272" height="312" rx="28" fill="#154a40" stroke="#30ba78" stroke-width="4" transform="rotate(-8 256 256)" opacity="0.85"/>
+
+    <!-- Front Flashcard -->
+    <rect x="126" y="106" width="260" height="300" rx="28" fill="url(#cardGrad)" filter="url(#shadow)"/>
+
+    <!-- Card Header Line / Accent -->
+    <path d="M 166 150 L 346 150" stroke="#30ba78" stroke-width="8" stroke-linecap="round"/>
+
+    <!-- Headphone Arc Over Card -->
+    <path d="M 180 260 A 76 76 0 0 1 332 260" fill="none" stroke="url(#suseGreen)" stroke-width="14" stroke-linecap="round"/>
+    <!-- Headphone Left Ear Cup -->
+    <rect x="166" y="246" width="22" height="42" rx="10" fill="#0c322c" stroke="#30ba78" stroke-width="4"/>
+    <!-- Headphone Right Ear Cup -->
+    <rect x="324" y="246" width="22" height="42" rx="10" fill="#0c322c" stroke="#30ba78" stroke-width="4"/>
+
+    <!-- Soundwaves / Speech Dots in Center of Card -->
+    <circle cx="230" cy="270" r="7" fill="#0c322c"/>
+    <circle cx="256" cy="270" r="10" fill="#30ba78"/>
+    <circle cx="282" cy="270" r="7" fill="#0c322c"/>
+
+    <!-- Spaced Repetition Indicator (3 Level Bars: Simple/Medium/Hard) -->
+    <rect x="180" y="340" width="40" height="12" rx="6" fill="#30ba78"/>
+    <rect x="236" y="340" width="40" height="12" rx="6" fill="#f59e0b"/>
+    <rect x="292" y="340" width="40" height="12" rx="6" fill="#ef4444"/>
+  </g>
+</svg>
