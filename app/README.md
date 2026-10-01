@@ -128,4 +128,13 @@ The app implements the standard SuperMemo-2 (SM-2) algorithm used by Anki:
    ```bash
    cd app
    flutter build apk --release
+   # Output: build/app/outputs/flutter-apk/app-release.apk
    ```
+
+5. **Automated Releases via Git Tag:**
+   Creating and pushing any `v*` tag triggers the GitHub Actions workflow to build and publish a new GitHub Release with the APK attached:
+   ```bash
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+
