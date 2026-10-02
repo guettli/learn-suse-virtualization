@@ -43,7 +43,7 @@ A: The **VMCA** is a certificate authority built into vCenter (part of the Platf
 Q: What certificate modes can vSphere use for ESXi host certificates?
 A: Three modes: **VMCA** (default) — VMCA signs each host's certificate automatically; **Custom** — an external/enterprise CA issues host certificates you manage; and **Thumbprint** (legacy, discouraged) — vCenter trusts the host's existing self-signed cert by fingerprint. VMCA-as-subordinate is also possible to chain to a corporate root.
 
-**SUSE Virtualization:** No per-host certificate-mode selector — the analog is supplying your own **custom certificate** via the **ssl-certificates** setting (issued/managed through **cert-manager**) versus the default self-signed cert.
+**SUSE Virtualization:** No per-host certificate-mode selector — the analog is supplying your own **custom certificate** (CA + public cert + private key in PEM) via the **ssl-certificates** setting versus the default self-signed cert.
 
 Q: What is the vSphere "Secure Boot" for an ESXi host (vs a VM)?
 A: **ESXi host Secure Boot** uses the server's **UEFI Secure Boot** to verify the signatures of the ESXi bootloader, VMkernel, and every installed VIB at boot, so tampered or unsigned code will not load. It protects the hypervisor itself — distinct from **VM Secure Boot**, which validates a guest OS's bootloader inside a VM.

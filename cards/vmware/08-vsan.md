@@ -18,12 +18,12 @@ A: The **cache tier** is a fast flash device used for read cache and/or write bu
 Q: What is the vSAN 8 Express Storage Architecture (ESA)?
 A: **ESA** is the vSAN 8 architecture optimized for **high-performance NVMe TLC flash**. It replaces disk groups with a single **storage pool** where **every device contributes to both capacity and performance** — no separate cache tier and no cache-device single point of failure.
 
-**SUSE Virtualization:** The closest analog is the newer **Longhorn V2 (SPDK)** engine, an NVMe-optimized redesign of the data path; Longhorn otherwise uses node disks directly without disk groups.
+**SUSE Virtualization:** The closest analog is the newer **Longhorn V2 (SPDK)** engine, an NVMe-optimized redesign of the data path (still an experimental/technical-preview feature in v1.7, not production parity); Longhorn otherwise uses node disks directly without disk groups.
 
 Q: How does an ESA storage pool differ from an OSA disk group?
 A: An OSA **disk group** is tiered (one cache + several capacity devices, cache failure kills the group). An ESA **storage pool** is single-tier: all NVMe devices are independent and dedicated to storage, so a single device failure only affects data on that device.
 
-**SUSE Virtualization:** No direct equivalent — Longhorn has neither disk groups nor storage pools; it places replicas on individual node disks (**blockdevices**), and the **V2 (SPDK)** engine is its ESA-like redesign.
+**SUSE Virtualization:** No direct equivalent — Longhorn has neither disk groups nor storage pools; it places replicas on individual node disks (**blockdevices**), and the **V2 (SPDK)** engine is its ESA-like redesign (experimental/technical preview in v1.7).
 
 Q: What is the difference between all-flash and hybrid vSAN?
 A: **Hybrid** vSAN uses flash for the cache tier and **spinning disks (HDD)** for capacity. **All-flash** uses flash for both tiers, enabling features like RAID-5/6 erasure coding, dedup and compression. ESA is all-NVMe-flash only.

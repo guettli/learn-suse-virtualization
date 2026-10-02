@@ -38,7 +38,7 @@ A: **Transparent Page Sharing (TPS)** deduplicates identical memory pages so mul
 Q: What is memory ballooning and the vmmemctl driver?
 A: **Ballooning** reclaims memory cooperatively: the **vmmemctl** balloon driver (part of VMware Tools) inflates inside the guest, pinning pages so the guest's own OS pages out its least-needed memory, which ESXi then reclaims. It needs VMware Tools installed and is gentler than hypervisor swapping because the guest chooses what to give up.
 
-**SUSE Virtualization:** **No vmmemctl/VMware-Tools balloon** — the closest is the KubeVirt/KVM **virtio-balloon** device with free-page reporting, but no vSphere-style balloon-under-pressure driver by that name.
+**SUSE Virtualization:** **No vmmemctl/VMware-Tools balloon** — Harvester does not document a balloon-under-pressure reclaim feature (classic memory ballooning is not supported, so VM memory is not returned once allocated); the memory-overhead ratio is tunable via **overcommit-config**, with host-level **KSM** page-merging.
 
 Q: What are memory compression and hypervisor swapping as reclamation techniques?
 A: **Memory compression** stores would-be-swapped pages compressed in a per-VM cache in RAM — far faster than disk. **Hypervisor swapping** writes guest pages to the VM's `.vswp` swap file on disk; it is the **last-resort** technique and causes the worst performance because ESXi swaps blindly without knowing which pages the guest needs.

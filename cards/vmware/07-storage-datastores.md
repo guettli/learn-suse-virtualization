@@ -38,7 +38,7 @@ A: **Fibre Channel** is a high-speed block SAN protocol that carries SCSI comman
 Q: How does iSCSI work in vSphere (initiator, target, IQN)?
 A: **iSCSI** carries SCSI commands over standard TCP/IP Ethernet. The host runs an **initiator** (software iSCSI adapter or a hardware HBA) that connects to a storage **target**; each endpoint is named by an **IQN (iSCSI Qualified Name)**. It delivers block LUNs over the existing IP network without an FC fabric.
 
-**SUSE Virtualization:** No direct equivalent at the VM layer — **Longhorn** does use iSCSI internally to attach volumes to nodes, but VMs consume volumes (PVCs), not iSCSI targets you configure.
+**SUSE Virtualization:** No direct equivalent at the VM layer — the default **Longhorn V1** engine does use iSCSI internally to attach volumes to nodes (the newer V2/SPDK engine uses NVMe-oF instead), but VMs consume volumes (PVCs), not iSCSI targets you configure.
 
 Q: What is FCoE?
 A: **FCoE (Fibre Channel over Ethernet)** encapsulates Fibre Channel frames inside Ethernet, letting FC traffic share a converged 10 GbE (lossless/DCB) network with LAN traffic. It uses Converged Network Adapters (CNAs) so hosts get FC-style block storage without a separate physical FC fabric.

@@ -24,7 +24,7 @@ A: A virtual disk is two files. The **`.vmdk`** is a small **text descriptor** â
 Q: What does the .nvram file store?
 A: The **`.nvram` file** stores the VM's **firmware settings** â€” its non-volatile memory, i.e. the virtual **BIOS or UEFI** configuration such as boot order and firmware variables. It is the VM-level equivalent of a physical machine's CMOS/NVRAM.
 
-**SUSE Virtualization:** Firmware/UEFI settings are part of the **VM's KubeVirt spec** (with EFI variables persisted by the platform), not a separate `.nvram` file.
+**SUSE Virtualization:** Firmware/UEFI settings are part of the **VM's KubeVirt spec**, not a separate `.nvram` file (EFI-variable state is non-persistent by default in Harvester).
 
 Q: What is the purpose of a VM's .vswp swap file?
 A: The **`.vswp`** is the VM's **memory swap file**, created on the datastore when the VM powers on. It backs guest memory that the host cannot keep in physical RAM under contention. Its size is the VM's memory minus any **memory reservation**, so a full reservation makes it near-zero. The file is deleted when the VM powers off.
